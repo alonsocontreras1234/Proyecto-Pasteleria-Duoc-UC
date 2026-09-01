@@ -13,10 +13,10 @@ Evaluacion Parcial 1 HTML sobre una pasteleria
 
   Estándar de seguimiento sobre los comentarios en GitHub que tenemos que seguir
 
-  feat – agregaste una funcionalidad nueva
-  fix – corregiste un error o bug
-  docs – cambios solo en documentación
-  style – formato del código (espacios, indentación), sin afectar la lógica
-  refactor – reordenaste u organizaste código sin cambiar su comportamiento
-  test – agregaste o corregiste pruebas
-  chore – tareas menores (configuración, dependencias, etc.)
+  * feat – agregaste una funcionalidad nueva
+  * fix – corregiste un error o bug
+  * docs – cambios solo en documentación
+  * style – formato del código (espacios, indentación), sin afectar la lógica
+  * refactor – reordenaste u organizaste código sin cambiar su comportamiento
+  * test – agregaste o corregiste pruebas
+  * chore – tareas menores (configuración, dependencias, etc.)
