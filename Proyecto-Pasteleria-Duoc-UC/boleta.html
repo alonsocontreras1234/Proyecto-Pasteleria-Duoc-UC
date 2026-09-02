@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boleta Electrónica de Venta | Pastelería Mil Sabores</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <!-- Barra de Navegación (Se oculta al imprimir) -->
+  <header class="navbar no-print">
+    <div class="nav-container">
+      <a href="index.html" class="brand-wrapper">
+        <div>
+          <div class="brand-logo">Pastelería Mil Sabores</div>
+          <div class="brand-tagline">50 Años de Tradición Artesanal</div>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="checkout.html" class="nav-link">Confirmar Pedido</a></li>
+          <li><a href="seguimiento.html" class="nav-link">Seguimiento de Envíos</a></li>
+          <li><a href="boleta.html" class="nav-link active">Última Boleta</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal de la Boleta -->
+  <main class="main-container">
+
+    <!-- Barra de acciones rápidas (No imprimible) -->
+    <div class="no-print"
+      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+      <div>
+        <h2 style="font-size: 1.8rem; margin-bottom: 4px;">Comprobante Oficial de Compra</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Tu pedido fue registrado en el taller de repostería.
+          Puedes imprimir o guardar tu boleta.</p>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <button onclick="window.print()" class="btn btn-primary">
+          Imprimir / Guardar en PDF
+        </button>
+        <a href="seguimiento.html" class="btn btn-success">
+          Ver Seguimiento en Tiempo Real
+        </a>
+      </div>
+    </div>
+
+    <!-- Estructura de la Boleta Electrónica (Formato SII) -->
+    <article class="boleta-container" id="boleta-render">
+      <!-- Encabezado de la Boleta -->
+      <div class="boleta-header">
+        <div>
+          <h2 style="font-family: var(--font-title); color: var(--accent); font-size: 2rem; margin-bottom: 4px;">
+            Pastelería Mil Sabores SpA</h2>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 2px;">Giro: Elaboración y Venta de
+            Productos de Repostería y Pastelería Fina</p>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 2px;">Casa Matriz: Av. Providencia
+            1234, Providencia, Región Metropolitana</p>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">Contacto: contacto@milsabores.cl | +56 2 2345 6789
+          </p>
+        </div>
+        <div class="boleta-box-sii">
+          <div style="font-size: 0.85rem; letter-spacing: 1px;">RUT: 76.543.210-K</div>
+          <div style="font-size: 1.1rem; margin: 4px 0;">BOLETA ELECTRÓNICA</div>
+          <div style="font-size: 1.25rem;" id="boleta-folio">N.º 004893</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">SII - SANTIAGO ORIENTE</div>
+        </div>
+      </div>
+
+      <!-- Datos del Cliente y Despacho -->
+      <div
+        style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background-color: var(--bg-primary); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+        <div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Datos
+            del Cliente</div>
+          <div style="font-weight: 700; font-size: 1.05rem;" id="boleta-cliente-nombre">Fernando Barra</div>
+          <div style="font-size: 0.9rem;" id="boleta-cliente-rut">RUN: 12.345.678-9</div>
+          <div style="font-size: 0.9rem;" id="boleta-cliente-email">Correo electrónico: fernando@duoc.cl</div>
+          <div style="font-size: 0.9rem;" id="boleta-cliente-tel">Teléfono: +56 9 1234 5678</div>
+        </div>
+        <div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Datos
+            del Envío y Entrega</div>
+          <div style="font-size: 0.9rem;"><strong>Código de Seguimiento:</strong> <span id="boleta-order-code"
+              style="color: var(--accent); font-weight: 900;">PMS-2026-8942</span></div>
+          <div style="font-size: 0.9rem;"><strong>Fecha de Entrega Programada:</strong> <span id="boleta-fecha-entrega"
+              style="color: var(--success); font-weight: 700;">03/09/2026</span></div>
+          <div style="font-size: 0.9rem;"><strong>Franja Horaria:</strong> <span id="boleta-franja-horaria">Mañana
+              (09:00 a 13:00 h)</span></div>
+          <div style="font-size: 0.9rem;"><strong>Destino:</strong> <span id="boleta-direccion">Av. Los Leones 1234,
+              Providencia</span></div>
+        </div>
+      </div>
+
+      <!-- Tabla de Ítems Comprados -->
+      <table class="boleta-table">
+        <thead>
+          <tr>
+            <th>Descripción del Producto</th>
+            <th style="text-align: center; width: 70px;">Cant.</th>
+            <th style="text-align: right; width: 120px;">Precio Unit.</th>
+            <th style="text-align: right; width: 130px;">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="boleta-items-body">
+          <!-- Renderizado dinámico -->
+        </tbody>
+      </table>
+
+      <!-- Totales y Desglose Tributario (Neto + IVA 19 %) -->
+      <div class="boleta-totals">
+        <div class="boleta-totals-row">
+          <span>Subtotal Bruto:</span>
+          <span id="boleta-subtotal">$0</span>
+        </div>
+        <div class="boleta-totals-row" id="boleta-row-desc" style="color: var(--success);">
+          <span>Descuento Promocional:</span>
+          <span id="boleta-descuento">-$0</span>
+        </div>
+        <div class="boleta-totals-row">
+          <span>Costo de Despacho:</span>
+          <span id="boleta-despacho">$0</span>
+        </div>
+        <div class="boleta-totals-row"
+          style="color: var(--text-muted); font-size: 0.88rem; border-top: 1px dashed var(--border-color); padding-top: 6px;">
+          <span>Monto Neto:</span>
+          <span id="boleta-neto">$0</span>
+        </div>
+        <div class="boleta-totals-row" style="color: var(--text-muted); font-size: 0.88rem;">
+          <span>I.V.A. (19 %):</span>
+          <span id="boleta-iva">$0</span>
+        </div>
+        <div class="boleta-totals-row total-final">
+          <span>TOTAL:</span>
+          <span id="boleta-total">$0</span>
+        </div>
+      </div>
+
+      <!-- Timbre Electrónico y Pie de Boleta -->
+      <div
+        style="margin-top: 35px; border-top: 2px dashed var(--border-color); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div style="font-size: 0.8rem; color: var(--text-muted); max-width: 420px;">
+          <p><strong>Timbre Electrónico S.I.I.</strong></p>
+          <p>Res. 99 de 2014 - Verifique documento en www.sii.cl</p>
+          <p>La boleta electrónica constituye comprobante válido de compra y garantía de elaboración artesanal fresca.
+          </p>
+        </div>
+        <div
+          style="text-align: center; border: 1px solid var(--border-color); padding: 8px 16px; border-radius: var(--radius-sm); background: #FAFAFA;">
+          <div style="font-family: monospace; font-size: 1.1rem; letter-spacing: 3px; font-weight: 700;">||||| | |||| ||
+            ||||| |||</div>
+          <span style="font-size: 0.75rem; color: var(--text-muted);"
+            id="boleta-barcode-text">PMS-2026-TIMBRE-DIGITAL</span>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer no-print">
+    <p><strong>Pastelería Mil Sabores SpA</strong> — 50 Años de Tradición (1976 - 2026)</p>
+    <p>Módulo de Procesamiento de Pedidos y Boletas — Proyecto Fullstack II (DSY1104)</p>
+  </footer>
+
+  <script src="js/validators.js"></script>
+  <script src="js/orders.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Obtener orden activa o crear una de muestra
+      let order = OrdersManager.getActiveOrder();
+
+      if (!order) {
+        order = OrdersManager.createOrder({
+          nombre: "Fernando Barra",
+          rut: "12345678-5",
+          email: "fernando@duoc.cl",
+          telefono: "+56 9 8765 4321",
+          tipoEntrega: "domicilio",
+          comuna: "Providencia",
+          direccion: "Av. Los Leones 1234, Depto 502",
+          fechaPreferida: Validators.getMinDeliveryDate(),
+          franjaHoraria: "Mañana (09:00 a 13:00)",
+          metodoPago: "Webpay Plus",
+          cupon: "FELICES50"
+        });
+      }
+
+      // 2. Poblar datos en la boleta
+      document.getElementById('boleta-folio').textContent = `N.º 00${order.folio}`;
+      document.getElementById('boleta-cliente-nombre').textContent = order.cliente.nombre;
+      document.getElementById('boleta-cliente-rut').textContent = `RUN: ${order.cliente.rut}`;
+      document.getElementById('boleta-cliente-email').textContent = `Correo electrónico: ${order.cliente.email}`;
+      document.getElementById('boleta-cliente-tel').textContent = `Teléfono: ${order.cliente.telefono}`;
+
+      document.getElementById('boleta-order-code').textContent = order.orderCode;
+      document.getElementById('boleta-fecha-entrega').textContent = order.entrega.fechaPreferida;
+      document.getElementById('boleta-franja-horaria').textContent = order.entrega.franjaHoraria;
+      document.getElementById('boleta-direccion').textContent = `${order.entrega.direccion} (${order.entrega.comuna})`;
+      document.getElementById('boleta-barcode-text').textContent = `${order.orderCode}-VAL-SII`;
+
+      // 3. Renderizar tabla de productos
+      const tbody = document.getElementById('boleta-items-body');
+      tbody.innerHTML = order.items.map(item => `
+        <tr>
+          <td>
+            <strong>${item.name}</strong>
+            ${item.dedication ? `<div style="font-size: 0.82rem; color: var(--secondary-dark); font-style: italic;">Dedicatoria: «${item.dedication}»</div>` : ''}
+          </td>
+          <td style="text-align: center;">${item.quantity}</td>
+          <td style="text-align: right;">${Validators.formatCLP(item.price)}</td>
+          <td style="text-align: right; font-weight: 700;">${Validators.formatCLP(item.price * item.quantity)}</td>
+        </tr>
+      `).join('');
+
+      // 4. Totales
+      document.getElementById('boleta-subtotal').textContent = Validators.formatCLP(order.totales.subtotalBruto);
+      document.getElementById('boleta-descuento').textContent = `-${Validators.formatCLP(order.totales.descuento)}`;
+      document.getElementById('boleta-despacho').textContent = order.totales.costoEnvio === 0 ? 'Gratis' : Validators.formatCLP(order.totales.costoEnvio);
+      document.getElementById('boleta-neto').textContent = Validators.formatCLP(order.totales.neto);
+      document.getElementById('boleta-iva').textContent = Validators.formatCLP(order.totales.iva);
+      document.getElementById('boleta-total').textContent = Validators.formatCLP(order.totales.total);
+    });
+  </script>
+</body>
+
+</html>
