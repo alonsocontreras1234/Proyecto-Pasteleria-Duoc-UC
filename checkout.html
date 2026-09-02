@@ -101,7 +101,7 @@
               </div>
               <div class="form-group">
                 <label class="form-label" for="direccion">Dirección / Calle y Número <span class="required">*</span></label>
-                <input type="text" id="direccion" class="form-control" placeholder="Av. Los Leones 1234, Depto. 502" required>
+                <input type="text" id="direccion" class="form-control" placeholder="Av. Los Leones 1234, dpto. 502" required>
               </div>
             </div>
           </div>
@@ -116,8 +116,8 @@
             <div class="form-group">
               <label class="form-label" for="franjaHoraria">Franja Horaria Preferida <span class="required">*</span></label>
               <select id="franjaHoraria" class="form-control" required>
-                <option value="Mañana (09:00 a 13:00 h)">Mañana (09:00 a 13:00 h)</option>
-                <option value="Tarde (14:00 a 19:00 h)">Tarde (14:00 a 19:00 h)</option>
+                <option value="Mañana (09:00 a 13:00)">Mañana (09:00 a 13:00)</option>
+                <option value="Tarde (14:00 a 19:00)">Tarde (14:00 a 19:00)</option>
               </select>
             </div>
           </div>
@@ -186,9 +186,14 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block" style="font-size: 1.1rem; padding: 15px;">
-            Confirmar Pedido y Generar Boleta
-          </button>
+          <div class="checkout-actions">
+            <button type="submit" id="btn-submit-order" class="btn btn-primary" style="font-size: 1.1rem; padding: 15px; width: 100%;">
+              Confirmar Pedido y Generar Boleta
+            </button>
+            <button type="button" id="btn-cancel-checkout" class="btn btn-ghost" style="width: 100%; padding: 10px; font-size: 0.95rem;">
+              ✕ Cancelar Compra y Vaciar Carrito
+            </button>
+          </div>
         </div>
       </div>
     </form>
@@ -272,7 +277,21 @@
         }
       });
 
-      updateTotals();
+      // Cancelar compra y restablecer estado
+      const btnCancel = document.getElementById('btn-cancel-checkout');
+      if (btnCancel) {
+        btnCancel.addEventListener('click', () => {
+          const confirmar = confirm('¿Está seguro de que desea cancelar la compra? Se vaciará el formulario y el carrito actual.');
+          if (confirmar) {
+            localStorage.removeItem('cart');
+            document.getElementById('checkout-form').reset();
+            TrackingManager.showToast('Compra Cancelada', 'El proceso de compra fue anulado.', 'info');
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 800);
+          }
+        });
+      }
 
       // Procesamiento del Formulario
       document.getElementById('checkout-form').addEventListener('submit', (e) => {

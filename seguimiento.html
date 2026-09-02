@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seguimiento de Envíos en Tiempo Real | Pastelería Mil Sabores</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
   <!-- Barra de Navegación -->
@@ -32,20 +34,16 @@
     <div class="section-header">
       <h1 class="section-title">Seguimiento de Envíos en Tiempo Real</h1>
       <p class="section-subtitle">
-        Monitorea cada etapa de tu pedido artesanal desde que ingresa al horno de nuestro taller hasta que llega a la puerta de tu hogar.
+        Monitorea cada etapa de tu pedido artesanal desde que ingresa al horno de nuestro taller hasta que llega a la
+        puerta de tu hogar.
       </p>
     </div>
 
     <!-- Buscador de Pedidos -->
     <div class="card" style="max-width: 680px; margin: 0 auto 30px;">
       <form id="search-form" style="display: flex; gap: 10px;">
-        <input 
-          type="text" 
-          id="search-input" 
-          class="form-control" 
-          placeholder="Ingresa tu código de pedido (ej. PMS-2026-8942) o RUN..." 
-          style="font-size: 1.05rem;"
-          required>
+        <input type="text" id="search-input" class="form-control"
+          placeholder="Ingresa tu código de pedido (ej. PMS-2026-8942) o RUN..." style="font-size: 1.05rem;" required>
         <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
           Rastrear
         </button>
@@ -54,23 +52,27 @@
 
     <!-- Panel de Estado del Pedido -->
     <section class="card" id="tracking-card">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1.5px solid var(--border-color); padding-bottom: 18px; margin-bottom: 25px;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1.5px solid var(--border-color); padding-bottom: 18px; margin-bottom: 25px;">
         <div>
-          <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Orden de Compra</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Orden
+            de Compra</span>
           <h2 style="font-size: 1.7rem; color: var(--accent); margin: 2px 0;" id="track-order-code">PMS-2026-8942</h2>
-          <span style="font-size: 0.9rem; color: var(--text-muted);">Cliente: <strong id="track-cliente">Fernando Barra</strong></span>
+          <span style="font-size: 0.9rem; color: var(--text-muted);">Cliente: <strong id="track-cliente">Fernando
+              Barra</strong></span>
         </div>
         <div style="text-align: right;">
           <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">Fecha Programada de Entrega</div>
-          <div style="font-size: 1.3rem; color: var(--success); font-weight: 900;" id="track-fecha-entrega">03/09/2026</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);" id="track-franja">Mañana (09:00 a 13:00 h)</div>
+          <div style="font-size: 1.3rem; color: var(--success); font-weight: 900;" id="track-fecha-entrega">03/09/2026
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);" id="track-franja">Mañana (09:00 a 13:00)</div>
         </div>
       </div>
 
       <!-- Stepper / Línea de Tiempo Visual Interactiva -->
       <div class="tracking-stepper" id="stepper-container">
         <div class="tracking-progress-bar" id="stepper-progress-bar" style="width: 25%;"></div>
-        
+
         <!-- Fase 1 -->
         <div class="step-item completed" data-step="1">
           <div class="step-icon">1</div>
@@ -108,13 +110,16 @@
       </div>
 
       <!-- Detalle Actual del Estado -->
-      <div style="background-color: var(--bg-primary); border-left: 5px solid var(--accent); padding: 18px 22px; border-radius: var(--radius-sm); margin-bottom: 25px;">
+      <div
+        style="background-color: var(--bg-primary); border-left: 5px solid var(--accent); padding: 18px 22px; border-radius: var(--radius-sm); margin-bottom: 25px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <h3 style="font-size: 1.25rem; color: var(--accent);" id="current-status-title">En Preparación en Taller</h3>
-          <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);" id="current-status-time">Actualizado hoy</span>
+          <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);"
+            id="current-status-time">Actualizado hoy</span>
         </div>
         <p style="font-size: 0.95rem; color: var(--text-main);" id="current-status-desc">
-          Nuestros maestros pasteleros están horneando y decorando tu pedido artesanal con ingredientes frescos de primera calidad.
+          Nuestros maestros pasteleros están horneando y decorando tu pedido artesanal con ingredientes frescos de
+          primera calidad.
         </p>
       </div>
 
@@ -123,9 +128,11 @@
         <!-- Repartidor -->
         <div style="border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-sm);">
           <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Repartidor Asignado</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">
+              Repartidor Asignado</div>
             <strong style="font-size: 1.05rem;" id="driver-name">Carlos Morales</strong>
-            <div style="font-size: 0.85rem; color: var(--text-muted);" id="driver-vehicle">Furgón Refrigerado (Patente PSMS-26)</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);" id="driver-vehicle">Furgón Refrigerado (Patente
+              PSMS-26)</div>
             <div style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">Contacto: +56 9 8765 4321</div>
           </div>
         </div>
@@ -133,21 +140,25 @@
         <!-- Dirección de Destino -->
         <div style="border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-sm);">
           <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Dirección de Entrega</div>
-            <strong style="font-size: 1.05rem;" id="dest-address">Av. Los Leones 1234, Depto 502</strong>
-            <div style="font-size: 0.85rem; color: var(--text-muted);" id="dest-comuna">Providencia, Región Metropolitana</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">
+              Dirección de Entrega</div>
+            <strong style="font-size: 1.05rem;" id="dest-address">Av. Los Leones 1234, dpto. 502</strong>
+            <div style="font-size: 0.85rem; color: var(--text-muted);" id="dest-comuna">Providencia, Región
+              Metropolitana</div>
             <div style="font-size: 0.85rem; color: var(--success); font-weight: 600;">Horario preferido registrado</div>
           </div>
         </div>
       </div>
 
       <!-- SIMULADOR INTERACTIVO PARA EVALUACIÓN DEL PROFESOR -->
-      <div style="margin-top: 35px; border-top: 2px dashed var(--border-color); padding-top: 25px; background: #FFF9F0; padding: 20px; border-radius: var(--radius-md);">
+      <div
+        style="margin-top: 35px; border-top: 2px dashed var(--border-color); padding-top: 25px; background: #FFF9F0; padding: 20px; border-radius: var(--radius-md);">
         <h4 style="color: var(--accent); margin-bottom: 8px;">
-          Panel de Simulación en Vivo (Control Docente / Pruebas)
+          Panel de Simulación en Vivo (Pruebas)
         </h4>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
-          Haz clic en cualquiera de los botones para simular cómo cambia el estado del pedido en tiempo real y observar las notificaciones automáticas:
+          Haz clic en cualquiera de los botones para simular cómo cambia el estado del pedido en tiempo real y observar
+          las notificaciones automáticas:
         </p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button class="btn btn-secondary" onclick="simulateStep(1)">1. Confirmar</button>
@@ -184,12 +195,12 @@
 
       document.getElementById('current-status-title').textContent = order.estadoActual.nombre;
       document.getElementById('current-status-desc').textContent = order.estadoActual.descripcion;
-      document.getElementById('current-status-time').textContent = `Actualizado a las ${order.estadoActual.horaActualizacion} h`;
+      document.getElementById('current-status-time').textContent = `Actualizado a las ${order.estadoActual.horaActualizacion}`;
 
       // Actualizar Stepper Visual
       const fase = order.estadoActual.fase;
       const stepItems = document.querySelectorAll('.step-item');
-      
+
       stepItems.forEach(item => {
         const itemStep = parseInt(item.getAttribute('data-step'), 10);
         item.classList.remove('completed', 'active');
@@ -224,7 +235,7 @@
           telefono: "+56 9 8765 4321",
           tipoEntrega: "domicilio",
           comuna: "Providencia",
-          direccion: "Av. Los Leones 1234, Depto 502",
+          direccion: "Av. Los Leones 1234, dpto. 502",
           fechaPreferida: Validators.getMinDeliveryDate(),
           franjaHoraria: "Mañana (09:00 a 13:00)",
           metodoPago: "Webpay Plus",
@@ -248,4 +259,5 @@
     });
   </script>
 </body>
+
 </html>

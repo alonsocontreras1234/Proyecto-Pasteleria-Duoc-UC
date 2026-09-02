@@ -64,31 +64,13 @@ const OrdersManager = {
     try {
       const stored = localStorage.getItem('pms_orders');
       if (stored) {
-        let orders = JSON.parse(stored);
-        // Sanitizar cualquier dato previo guardado en el navegador
-        let modified = false;
-        orders = orders.map(o => {
-          if (o.cliente && o.cliente.nombre && o.cliente.nombre.includes('Barraza')) {
-            o.cliente.nombre = o.cliente.nombre.replace('Barraza', 'Barra');
-            modified = true;
-          }
-          if (Array.isArray(o.items)) {
-            o.items.forEach(it => {
-              if (it.dedication && it.dedication.includes('Barraza')) {
-                it.dedication = it.dedication.replace('Barraza', 'Barra');
-                modified = true;
-              }
-            });
-          }
-          return o;
-        });
-        if (modified) {
-          localStorage.setItem('pms_orders', JSON.stringify(orders));
+        const orders = JSON.parse(stored);
+        if (Array.isArray(orders)) {
+          return orders;
         }
-        return orders;
       }
     } catch (e) {
-      console.error(e);
+      console.error("Error al leer pedidos de localStorage:", e);
     }
     return [];
   },
@@ -198,17 +180,15 @@ const OrdersManager = {
     try {
       const stored = localStorage.getItem('pms_active_order');
       if (stored) {
-        let order = JSON.parse(stored);
-        if (order.cliente && order.cliente.nombre && order.cliente.nombre.includes('Barraza')) {
-          order.cliente.nombre = order.cliente.nombre.replace('Barraza', 'Barra');
-          localStorage.setItem('pms_active_order', JSON.stringify(order));
+        const order = JSON.parse(stored);
+        if (order && typeof order === 'object') {
+          return order;
         }
-        return order;
       }
       const all = this.getAllOrders();
       if (all.length > 0) return all[0];
     } catch (e) {
-      console.error(e);
+      console.error("Error al leer pedido activo de localStorage:", e);
     }
     return null;
   }

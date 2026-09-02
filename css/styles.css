@@ -296,8 +296,36 @@ em, i.foreign-term {
   background-color: #256628;
 }
 
-.btn-block {
-  width: 100%;
+.btn-danger {
+  background-color: transparent;
+  color: var(--danger);
+  border: 1.5px solid var(--danger);
+}
+
+.btn-danger:hover {
+  background-color: var(--danger);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-color);
+}
+
+.btn-ghost:hover {
+  background-color: rgba(166, 37, 34, 0.08);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.checkout-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 /* Stepper de Seguimiento en Tiempo Real */
