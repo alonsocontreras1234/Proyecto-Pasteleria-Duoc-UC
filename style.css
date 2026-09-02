@@ -1,0 +1,401 @@
+/*========INICIO========*/
+/*BODY — espacio general arriba de todo*/
+
+body {
+  padding-top: 150px;
+  background-color: #E7C5B1;
+}
+
+
+/*CONTENEDOR DE TARJETAS (pasteles)*/
+
+.contenedor {
+  /*Tamaño y posición*/
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  /*Espaciado interno y externo*/
+  gap: 12px;
+  margin-top: 30px;
+
+  /*Comportamiento (animación de rotación)*/
+  transition: opacity 0.4s ease;
+}
+
+.contenedor.fade-out {
+  opacity: 0;
+}
+
+
+/*TARJETA DE PASTEL (.targetas)*/
+
+.targetas {
+  /*Tamaño y posición*/
+  width: auto;
+  overflow: hidden;
+
+  /*Bordes*/
+  border: 2px solid black;
+  border-radius: 12px;
+
+  /*Color*/
+  background-color: #E7C5B1;
+
+  /*Comportamiento (hover)*/
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.targetas:hover {
+  transform: scale(1.02);
+}
+
+/*La imagen de adentro*/
+.targetas img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+
+/*El interior (contenedor del texto)*/
+.targetas .info {
+  padding: 10px 12px;
+}
+
+.targetas h3 {
+  font-size: 16px;
+  margin: 0 0 4px;
+}
+
+.targetas p {
+  font-size: 13px;
+  color: #555;
+  margin: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+ 
+}
+
+.targetas .precio {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #C64800;
+}
+
+
+/*TÍTULO "NUESTROS PASTELES"*/
+
+.productos {
+  /*Interior (texto)*/
+  text-align: center;
+}
+
+
+/* SECCIÓN "NUESTRA HISTORIA"*/
+
+.historia {
+  /*Tamaño y posición*/
+  display: flex !important;
+  flex-direction: column !important;
+  max-width: 500px;
+
+  /*Espaciado externo/interno*/
+  margin-top: 20px;
+  padding: 10px;
+
+  /*Color*/
+  background-color: #C64800;
+}
+
+.historia h2 {
+  display: block;
+  margin: 0;
+}
+
+.historia p {
+  display: block;
+  margin: 0;
+}
+
+
+/*CONTENEDOR DE NOTICIAS*/
+
+.contenedor_noticias {
+  /*Tamaño y posición*/
+  max-width: 500px;
+
+  /*Bordes*/
+  border: 2px solid black;
+
+  /*Espaciado*/
+  margin-top: 20px;
+
+  /*Interior (texto)*/
+  text-align: center;
+  background-color: white;
+}
+
+
+/* TARJETA DE NOTICIA (.noticia)*/
+
+.noticia {
+  /*Tamaño y posición*/
+  display: flex;
+  flex-direction: column;
+  max-width: 200px;
+
+  /*Espaciado*/
+  margin: 0 auto;
+
+  /*Interior (texto) y color*/
+  text-align: left;
+  background-color: white;
+}
+
+/*La imagen de adentro*/
+.noticia img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+
+  /* Bordes */
+  border-radius: 8px;
+}
+
+/* --- El interior (contenedor del texto) --- */
+.noticia-info {
+  padding: 8px 0;
+}
+
+.noticia h3 {
+  font-size: 14px;
+  margin: 0 0 4px;
+}
+
+.noticia p {
+  font-size: 12px;
+  color: #555;
+  margin: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+ 
+}
+
+/* ============================================
+   MODAL — caja flotante
+   ============================================ */
+
+.modal-caja {
+  /* --- Tamaño / posición --- */
+  display: none;
+  flex-direction: column;
+  max-width: 700px;
+  width: 90%;
+  position: relative;
+
+  /* --- Bordes --- */
+  border: none;
+  border-radius: 12px;
+
+  /* --- Espaciado --- */
+  padding: 20px;
+}
+
+.modal-caja[open] {
+  display: flex;
+}
+
+.modal-caja::backdrop {
+  /* --- Color --- */
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-cerrar {
+  /* --- Tamaño / posición --- */
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  /* --- Bordes --- */
+  border: none;
+
+  /* --- Color --- */
+  background: none;
+
+  /* --- Interior (texto) --- */
+  font-size: 20px;
+
+  /* --- Comportamiento --- */
+  cursor: pointer;
+}
+
+/* --- La imagen de adentro --- */
+.modal-izquierda img {
+  /* --- Tamaño / posición --- */
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+
+  /* --- Bordes --- */
+  border-radius: 8px;
+}
+
+.modal-receta {
+  /* --- Espaciado --- */
+  margin-top: 12px;
+}
+
+/* --- Lista numerada de pasos --- */
+.modal-receta ol {
+  /* --- Espaciado --- */
+  margin: 8px 0 0;
+  padding-left: 18px;
+
+  /* --- Interior (texto) --- */
+  font-size: 13px;
+  color: #555;
+}
+
+.modal-receta li {
+  margin-bottom: 4px;
+}
+
+.modal-derecha {
+  /* --- Tamaño / posición --- */
+  display: flex;
+  flex-direction: column;
+
+  /* --- Espaciado --- */
+  margin-top: 20px;
+}
+
+.modal-derecha p#modalDescripcion {
+  /* --- Interior (texto) --- */
+  line-height: 1.6;
+}
+
+
+/* ============================================
+   MODAL — bloque de compra (cantidad + precio)
+   ============================================ */
+
+.modal-compra {
+  /* --- Espaciado --- */
+  margin-top: 20px;
+  padding-top: 16px;
+
+  /* --- Bordes --- */
+  border-top: 1px solid #ddd;
+}
+
+.modal-cantidad {
+  /* --- Tamaño / posición --- */
+  display: flex;
+  align-items: center;
+
+  /* --- Espaciado --- */
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.modal-cantidad button {
+  /* --- Tamaño / posición --- */
+  width: 28px;
+  height: 28px;
+
+  /* --- Bordes --- */
+  border: 1px solid #333;
+  border-radius: 4px;
+
+  /* --- Color --- */
+  background: white;
+
+  /* --- Interior (texto) --- */
+  font-size: 16px;
+
+  /* --- Comportamiento --- */
+  cursor: pointer;
+}
+
+.modal-precio-total {
+  /* --- Espaciado --- */
+  margin: 0 0 10px;
+
+  /* --- Interior (texto) --- */
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.modal-comprar {
+  /* --- Bordes --- */
+  border: none;
+  border-radius: 8px;
+
+  /* --- Color --- */
+  background-color: #C64800;
+  color: white;
+
+  /* --- Espaciado --- */
+  padding: 10px 16px;
+
+  /* --- Interior (texto) --- */
+  font-size: 14px;
+
+  /* --- Comportamiento --- */
+  cursor: pointer;
+}
+
+.modal-mensaje {
+  /* --- Espaciado --- */
+  margin: 8px 0 0;
+
+  /* --- Interior (texto) --- */
+  font-size: 12px;
+  color: #2e7d32;
+}
+
+
+/*RESPONSIVE — ESCRITORIO (desde 1024px)*/
+
+@media (min-width: 768px) {
+
+  .contenedor {
+    grid-template-columns: repeat(auto-fit, 200px);
+  }
+
+  .historia {
+    flex-direction: row;
+    float: left;
+    margin-right: 200px;
+  }
+
+  .contenedor_noticias {
+    overflow: hidden;
+    max-width: none;
+  }
+
+  .modal-caja[open] {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .modal-izquierda,
+  .modal-derecha {
+    flex: 1;
+  }
+
+  .modal-derecha {
+    margin-top: 0;
+  }
+
+}
+/*========INICIO========*/

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PASTELERIA MIL SABORES</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+
+        <section class="productos">       
+            <h2>Nuestros pasteles y resetas</h2>
+        </section>
+        
+        <div class="contenedor" id="contenedorProductos">
+
+        </div>
+        
+       <div class="historia">  
+            <h2>Nuestra historia</h2>
+            <p>
+                En 1995, la Pastelería 1000 Sabores hizo historia al colaborar en la creación
+                de la torta más grande del mundo, un hito reconocido por el Libro Guinness que
+                marcó para siempre su nombre en la repostería chilena. Treinta años después,
+                esa misma pastelería que una vez desafió los límites de la repostería
+                tradicional se atreve a un nuevo desafío: renovar su sistema de ventas online
+                para ofrecer a sus clientes una experiencia de compra moderna, simple y
+                accesible, manteniendo intacta la calidad y el cariño que la hicieron famosa.
+            </p>
+        </div>
+
+        <div class="contenedor_noticias">
+            <h2>Noticias</h2>
+            <article class="noticia">
+                <img src="img/noticias/noticia-1.jpg" alt="Nueva sucursal en el centro">
+                <div class="noticia-info">
+                    <h3>Abrimos nueva sucursal</h3>
+                    <p>Desde este mes puedes visitarnos también en el centro de la ciudad.</p>
+                </div>
+            </article>
+            
+            <article class="noticia">
+                <img src="img/noticias/noticia-2.jpg" alt="Nuevo sabor de temporada">
+                <div class="noticia-info">
+                    <h3>Nuevo sabor de temporada</h3>
+                    <p>Lanzamos el pastel de mango y maracuyá, disponible solo por tiempo limitado.</p>
+                </div>
+            </article>
+
+            <article class="noticia">
+                <img src="img/noticias/noticia-3.jpg" alt="Colaboración con productores locales">
+                <div class="noticia-info">
+                    <h3>Ahora con ingredientes locales</h3>
+                    <p>Nos aliamos con productores de la zona para usar frutas y lácteos de mejor calidad.</p>
+                </div>
+            </article>
+        </div>
+
+        <dialog class="modal-caja" id="modalPastel">
+            <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
+
+            <div class="modal-izquierda">
+                <img id="modalImagen" src="" alt="">
+                <div class="modal-receta">
+                    <h3>Receta</h3>
+                    <ol id="modalReceta"></ol>
+                </div>
+            </div>
+
+            <div class="modal-derecha">
+                <h2 id="modalTitulo"></h2>
+                <p id="modalDescripcion"></p>
+
+                <div class="modal-compra">
+                    <div class="modal-cantidad">
+                        <button onclick="cambiarCantidad(-1)">−</button>
+                        <span id="modalCantidad">1</span>
+                        <button onclick="cambiarCantidad(1)">+</button>
+                    </div>
+
+                    <p class="modal-precio-total" id="modalPrecioTotal"></p>
+
+                    <button class="modal-comprar" onclick="agregarAlCarrito()">Agregar al carrito</button>
+
+                    <p class="modal-mensaje" id="modalMensaje"></p>
+                </div>
+            </div>
+        </dialog>
+
+        <script src="script.js"></script>
+    </body>
+
+</html>
