@@ -67,5 +67,62 @@ const Validators = {
   validarEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
+  },
+
+  /**
+   * Evalúa y calcula los beneficios del usuario (Edad >= 50, FELICES50, Correo Duoc)
+   * @param {Object} userData - { fechaNacimiento, codigoPromo, email }
+   * @returns {Object} Beneficios aplicables
+   */
+  calcularBeneficios(userData) {
+    const beneficios = {
+      porcentajeDescuentoEdad: 0,
+      porcentajeDescuentoCodigo: 0,
+      descuentoAplicable: 0,
+      tortaGratisDuoc: false,
+      detalles: []
+    };
+
+    if (!userData) return beneficios;
+
+    // 1. Descuento 50% mayores de 50 años
+    if (userData.fechaNacimiento) {
+      const hoy = new Date();
+      const nacimiento = new Date(userData.fechaNacimiento);
+      let edad = hoy.getFullYear() - nacimiento.getFullYear();
+      const mes = hoy.getMonth() - nacimiento.getMonth();
+      
+      if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad--;
+      }
+
+      if (edad >= 50) {
+        beneficios.porcentajeDescuentoEdad = 0.50;
+        beneficios.detalles.push("50% de descuento por ser mayor de 50 años");
+      }
+    }
+
+    // 2. Descuento 10% código FELICES50
+    if (userData.codigoPromo && userData.codigoPromo.trim().toUpperCase() === 'FELICES50') {
+      beneficios.porcentajeDescuentoCodigo = 0.10;
+      beneficios.detalles.push("10% de descuento vitalicio por código FELICES50");
+    }
+
+    // 3. Torta gratis cumpleaños alumnos Duoc
+    if (userData.email) {
+      const dominio = userData.email.split('@')[1]?.toLowerCase() || '';
+      if (dominio === 'duocuc.cl' || dominio === 'alumnos.duoc.cl') {
+        beneficios.tortaGratisDuoc = true;
+        beneficios.detalles.push("Torta gratis en tu cumpleaños (Estudiante Duoc UC)");
+      }
+    }
+
+    // Aplica el beneficio porcentual mayor
+    beneficios.descuentoAplicable = Math.max(
+      beneficios.porcentajeDescuentoEdad,
+      beneficios.porcentajeDescuentoCodigo
+    );
+
+    return beneficios;
   }
 };

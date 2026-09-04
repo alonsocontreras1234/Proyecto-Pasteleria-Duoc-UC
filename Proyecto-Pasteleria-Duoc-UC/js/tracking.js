@@ -1,106 +1,100 @@
-/**
- * MÓDULO DE SEGUIMIENTO EN TIEMPO REAL Y NOTIFICACIONES DE ESTADO
- * Módulo: Fernando - Pastelería Mil Sabores
- */
+document.addEventListener("DOMContentLoaded", () => {
+  const formBusqueda = document.getElementById("form-busqueda-tracking");
+  const inputBusqueda = document.getElementById("input-busqueda");
+  const contenedorResultado = document.getElementById("tracking-resultado");
 
-const TrackingManager = {
-  fasesInfo: [
-    { fase: 1, nombre: 'Pedido Confirmado', desc: 'Pago aprobado y orden ingresada al sistema de producción.' },
-    { fase: 2, nombre: 'En Preparación en Taller', desc: 'Nuestros maestros pasteleros están horneando y decorando tu pedido.' },
-    { fase: 3, nombre: 'Control de Calidad y Empaque', desc: 'Inspección de dedicatoria y empaque en frío para transporte seguro.' },
-    { fase: 4, nombre: 'En Ruta de Despacho', desc: 'El repartidor va camino a tu dirección con control de temperatura.' },
-    { fase: 5, nombre: 'Entregado con Éxito', desc: 'Pedido entregado en la fecha y franja horaria programada. ¡Que lo disfrutes!' }
-  ],
-
-  /**
-   * Muestra una notificación emergente tipo Toast
-   */
-  showToast(title, message, type = 'info') {
-    let container = document.getElementById('toast-container');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'toast-container';
-      container.className = 'toast-container';
-      document.body.appendChild(container);
-    }
-
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-      <div>
-        <strong style="display: block; font-size: 0.95rem; margin-bottom: 2px;">${title}</strong>
-        <span style="font-size: 0.85rem; color: var(--text-muted);">${message}</span>
-      </div>
-    `;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(100%)';
-      toast.style.transition = 'all 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 4500);
-  },
-
-  /**
-   * Busca un pedido por código (PMS-2026-XXXX) o RUT del cliente
-   */
-  searchOrder(query) {
-    if (!query) return null;
-    const cleanQuery = query.trim().toUpperCase();
-    const orders = OrdersManager.getAllOrders();
-
-    return orders.find(order => 
-      order.orderCode.toUpperCase() === cleanQuery ||
-      order.cliente.rut.replace(/[^0-9kK]/g, '').toUpperCase() === cleanQuery.replace(/[^0-9kK]/g, '')
-    ) || null;
-  },
-
-  /**
-   * Avanza la fase de un pedido (Simulación de Estado en Tiempo Real)
-   */
-  advanceOrderStatus(orderCode, targetFase = null) {
-    const orders = OrdersManager.getAllOrders();
-    const orderIndex = orders.findIndex(o => o.orderCode === orderCode);
-
-    if (orderIndex === -1) return null;
-
-    const order = orders[orderIndex];
-    let nextFase = targetFase !== null ? targetFase : order.estadoActual.fase + 1;
-    if (nextFase > 5) nextFase = 5;
-
-    const info = this.fasesInfo[nextFase - 1];
-    const horaActual = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
-
-    order.estadoActual = {
-      fase: nextFase,
-      nombre: info.nombre,
-      descripcion: info.desc,
-      horaActualizacion: horaActual
-    };
-
-    // Registrar en historial si no existe
-    if (!order.historialEstados.some(h => h.fase === nextFase)) {
-      order.historialEstados.push({
-        fase: nextFase,
-        nombre: info.nombre,
-        fecha: new Date().toLocaleString('es-CL'),
-        completado: true
-      });
-    }
-
-    orders[orderIndex] = order;
-    localStorage.setItem('pms_orders', JSON.stringify(orders));
-    localStorage.setItem('pms_active_order', JSON.stringify(order));
-
-    // Emitir notificación en vivo
-    this.showToast(
-      `Actualización de Pedido (${order.orderCode})`,
-      `Estado actual: ${info.nombre}`,
-      nextFase === 5 ? 'success' : 'info'
-    );
-
-    return order;
+  // 1. Cargar automáticamente si hay una orden activa reciente
+  const ordenActiva = OrdersManager.getActiveOrder();
+  if (ordenActiva) {
+    renderizarSeguimiento(ordenActiva);
   }
-};
+
+  // 2. Evento de Búsqueda Manual (por RUT o Código PMS-2026-XXXX)
+  if (formBusqueda) {
+    formBusqueda.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const query = inputBusqueda.value.trim();
+      const ordenEncontrada = TrackingManager.searchOrder(query);
+
+      if (ordenEncontrada) {
+        renderizarSeguimiento(ordenEncontrada);
+      } else {
+        TrackingManager.showToast(
+          "Búsqueda sin resultados",
+          "No se encontró ningún pedido asociado al código o RUT ingresado.",
+          "error"
+        );
+      }
+    });
+  }
+});
+
+/**
+ * Renderiza la interfaz de la orden y la línea de tiempo de 5 fases
+ */
+function renderizarSeguimiento(orden) {
+  const contenedor = document.getElementById("tracking-resultado");
+  if (!contenedor) return;
+
+  const faseActual = orden.estadoActual.fase;
+
+  contenedor.innerHTML = `
+    <div class="tracking-card">
+      <header class="tracking-header">
+        <h3>Pedido #${orden.orderCode}</h3>
+        <span class="badge-folio">Folio Boleta: ${orden.folio}</span>
+      </header>
+
+      <div class="tracking-info-grid">
+        <p><strong>Cliente:</strong> ${orden.cliente.nombre}</p>
+        <p><strong>RUT:</strong> ${orden.cliente.rut}</p>
+        <p><strong>Destino:</strong> ${orden.entrega.direccion}, ${orden.entrega.comuna}</p>
+        <p><strong>Franja Horaria:</strong> ${orden.entrega.fechaPreferida} (${orden.entrega.franjaHoraria})</p>
+      </div>
+
+      <!-- LÍNEA DE TIEMPO / STEPPER DE 5 FASES -->
+      <div class="stepper-container" style="margin: 25px 0;">
+        <div class="stepper-pasos" style="display: flex; justify-content: space-between; position: relative;">
+          ${TrackingManager.fasesInfo.map(f => {
+            const completado = f.fase <= faseActual;
+            const activa = f.fase === faseActual;
+            return `
+              <div class="paso-item ${completado ? 'completado' : ''} ${activa ? 'activo' : ''}" style="text-align: center; flex: 1;">
+                <div class="paso-icono" style="background-color: ${completado ? '#2e7d32' : '#ccc'}; color: #fff; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; font-weight: bold;">
+                  ${completado ? '✓' : f.fase}
+                </div>
+                <strong style="font-size: 0.85rem; display: block; color: ${activa ? '#2e7d32' : '#333'}">${f.nombre}</strong>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- ESTADO ACTUAL -->
+      <div class="estado-actual-box" style="background-color: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 4px solid #2e7d32; margin-bottom: 20px;">
+        <h4 style="margin: 0 0 5px 0;">${orden.estadoActual.nombre}</h4>
+        <p style="margin: 0; font-size: 0.9rem; color: #555;">${orden.estadoActual.descripcion}</p>
+        <small style="color: #888; display: block; margin-top: 5px;">Última actualización: ${orden.estadoActual.horaActualizacion} hrs</small>
+      </div>
+
+      <!-- BOTÓN DE SIMULACIÓN DE AVANCE -->
+      ${faseActual < 5 ? `
+        <button id="btn-avanzar-fase" onclick="simularSiguienteFase('${orden.orderCode}')" style="background-color: #0288d1; color: white; border: none; padding: 10px 18px; border-radius: 4px; cursor: pointer;">
+          Simular Avance de Estado ➔
+        </button>
+      ` : `
+        <p style="color: #2e7d32; font-weight: bold;">¡Este pedido ya ha sido entregado!</p>
+      `}
+    </div>
+  `;
+}
+
+/**
+ * Función global para simular el paso a la siguiente etapa de producción/entrega
+ */
+function simularSiguienteFase(orderCode) {
+  const ordenActualizada = TrackingManager.advanceOrderStatus(orderCode);
+  if (ordenActualizada) {
+    renderizarSeguimiento(ordenActualizada);
+  }
+}

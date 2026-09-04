@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro y Acceso | Mil Sabores</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Contenedor Principal de Registro -->
+  <main class="main-container" style="max-width: 480px; margin: 40px auto;">
+    <div class="card" style="padding: 30px;">
+      
+      <!-- FORMULARIO DE REGISTRO -->
+      <form id="form-registro">
+        <h2 style="font-family: 'Georgia', serif; color: #a04000; text-align: center; margin-bottom: 5px;">
+          CREA TU CUENTA EN <br><em>Mil Sabores</em>
+        </h2>
+        <p style="text-align: center; font-size: 0.85rem; color: #666; margin-bottom: 20px;">
+          Forma parte del 50° Aniversario y accede a promociones exclusivas
+        </p>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">RUT (Sin puntos ni guión)</label>
+          <input type="text" id="reg_rut" class="form-control" placeholder="Ej: 19011022K" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">NOMBRE COMPLETO</label>
+          <input type="text" id="reg_nombre" class="form-control" placeholder="Tu nombre y apellido" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">E-MAIL</label>
+          <input type="email" id="reg_email" class="form-control" placeholder="ejemplo@duocuc.cl" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">CONTRASENA</label>
+          <input type="password" id="reg_pass" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">FECHA DE NACIMIENTO</label>
+          <input type="date" id="reg_fecha" class="form-control" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label">CÓDIGO PROMOCIONAL (Opcional)</label>
+          <input type="text" id="reg_codigo" class="form-control" placeholder="Ej: FELICES50">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; background: #4a0e0e; border: none; padding: 12px;">
+          CREAR CUENTA
+        </button>
+      </form>
+
+      <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
+
+      <!-- SECCIÓN IR A INICIAR SESIÓN -->
+      <div style="text-align: center;">
+        <h3 style="font-size: 0.95rem; color: #333; margin-bottom: 5px;">¿YA TIENES CUENTA?</h3>
+        <p style="font-size: 0.8rem; color: #666; margin-bottom: 12px;">
+          Inicia sesión para hacer tu proceso de compra más rápido.
+        </p>
+        <button type="button" class="btn btn-secondary" id="btn-abrir-login" style="width: 100%; border: 1px solid #a04000; color: #a04000; background: transparent;">
+          INICIAR SESIÓN
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL FLOTANTE DE INICIO DE SESIÓN -->
+  <div id="modal-login" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="width: 90%; max-width: 400px; padding: 25px; background: white; border-radius: 12px; position: relative;">
+      <button type="button" id="btn-cerrar-login" style="position: absolute; top: 10px; right: 15px; border: none; background: transparent; font-size: 1.2rem; cursor: pointer;">✕</button>
+      
+      <h2 style="font-family: 'Georgia', serif; color: #a04000; margin-bottom: 15px; text-align: center;">Iniciar Sesión</h2>
+      
+      <form id="form-login">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Correo Electrónico</label>
+          <input type="email" id="login_email" class="form-control" placeholder="tu@correo.cl" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label">Contraseña</label>
+          <input type="password" id="login_pass" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; background: #a04000; border: none; padding: 10px;">
+          Ingresar a Mi Cuenta
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/validators.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

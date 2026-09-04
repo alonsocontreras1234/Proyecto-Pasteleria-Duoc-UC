@@ -3,44 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Proyecto - Navegación</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Mi Perfil y Compras | Pastelería Mil Sabores</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
-  <!-- Barra de Navegación Superior -->
+  <!-- Barra de Navegación -->
   <header class="navbar">
-    <nav>
-      <ul class="nav-links">
-        <li><a href="checkout.html" class="nav-link">Confirmar Pedido</a></li>
-        <li><a href="seguimiento.html" class="nav-link">Seguimiento de Envíos</a></li>
-        <li><a href="boleta.html" class="nav-link">Última Boleta</a></li>
-      </ul>
-    </nav>
+    <div class="nav-container">
+      <a href="index.html" class="brand-wrapper">
+        <span class="brand-icon"></span>
+        <div>
+          <h1 class="brand-logo">Mil Sabores</h1>
+          <span class="brand-tagline">50 Aniversario</span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Inicio</a></li>
+          <li><a href="catalogo.html" class="nav-link">Catálogo</a></li>
+          <li><a href="seguimiento.html" class="nav-link">Seguimiento</a></li>
+          <li><a href="perfil.html" class="nav-link active">Mi Perfil</a></li>
+          <li><a href="registro.html" class="nav-link">Regístrate</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
 
-  <!-- Contenido Principal con Botones de Redirección -->
-  <main class="container" style="text-align: center; margin-top: 50px;">
-    <h1>Menú Principal</h1>
-    <p>Selecciona a dónde deseas ir:</p>
+  <!-- Contenido Principal -->
+  <main class="main-container">
+    <div class="section-header">
+      <h1 class="section-title">Mi Cuenta y Compras</h1>
+      <p class="section-subtitle">
+        Gestiona tu información personal, revisa tu carrito activo, haz seguimiento a tus envíos en tránsito y consulta tu historial.
+      </p>
+    </div>
 
-    <div class="button-container">
-      <!-- Botón al Checkout -->
-      <a href="checkout.html" class="btn btn-primary">
-        Ir a Confirmar Pedido
-      </a>
+    <div class="perfil-layout">
+      <!-- Menú Lateral / Navegación por Pestañas -->
+      <aside class="perfil-sidebar card">
+        <div class="perfil-user-badge">
+          <div class="avatar-circle">👤</div>
+          <h3 id="sidebar-nombre-usuario">Cargando...</h3>
+          <span class="badge-aniversario">Cliente Aniversario</span>
+          <small id="sidebar-correo-usuario">correo@ejemplo.cl</small>
+        </div>
 
-      <!-- Botón al Seguimiento -->
-      <a href="seguimiento.html" class="btn btn-success">
-        Ver Seguimiento de Envíos
-      </a>
+        <nav class="perfil-tabs-nav">
+          <button class="tab-btn active" onclick="cambiarTab('datos-personales')">
+            <span>📝 Datos Personales</span>
+          </button>
+          <button class="tab-btn" onclick="cambiarTab('carrito-activo')">
+            <span>🛒 Mi Carrito</span>
+            <span class="tab-badge" id="badge-cart-count">0</span>
+          </button>
+          <button class="tab-btn" onclick="cambiarTab('pedidos-pendientes')">
+            <span>🚚 Pedidos en Camino</span>
+            <span class="tab-badge status-alert" id="badge-pending-count">0</span>
+          </button>
+          <button class="tab-btn" onclick="cambiarTab('historial-compras')">
+            <span>📜 Historial de Compras</span>
+          </button>
 
-      <!-- Botón a la Boleta -->
-      <a href="boleta.html" class="btn btn-secondary">
-         Ver Última Boleta
-      </a>
+          <!-- NUEVO BOTÓN PARA CERRAR SESIÓN -->
+          <button class="tab-btn btn-cerrar-sesion" onclick="cerrarSesion()">
+            <span>🚪 Cerrar Sesión</span>
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Paneles de Contenido Dinámico -->
+      <section class="perfil-content">
+        
+        <!-- PESTAÑA 1: DATOS PERSONALES -->
+        <div id="tab-datos-personales" class="tab-panel active card">
+          <h2 class="titulo-tab">Información Personal</h2>
+          <p class="subtitulo-tab">Actualiza tus datos de contacto y clave de acceso.</p>
+          
+          <form id="form-perfil-datos">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="perfil_nombre">Nombre Completo <span class="required">*</span></label>
+                <input type="text" id="perfil_nombre" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="perfil_telefono">Teléfono de Contacto <span class="required">*</span></label>
+                <input type="tel" id="perfil_telefono" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+              <label class="form-label" for="perfil_email">Correo Electrónico (Identificador Único)</label>
+              <input type="email" id="perfil_email" class="form-control" disabled style="background-color: #f5f5f5; cursor: not-allowed;">
+              <div class="form-hint">El correo no se puede modificar por motivos de seguridad.</div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+              <label class="form-label" for="perfil_direccion">Dirección Predeterminada de Despacho</label>
+              <input type="text" id="perfil_direccion" class="form-control" placeholder="Ej. Av. Providencia 1234, Depto 502">
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin: 25px 0 10px 0; color: #3e2723; border-top: 1px solid #eee; padding-top: 15px;">Cambiar Contraseña</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="perfil_pass_nueva">Nueva Contraseña</label>
+                <input type="password" id="perfil_pass_nueva" class="form-control" placeholder="••••••••">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="perfil_pass_confirm">Confirmar Contraseña</label>
+                <input type="password" id="perfil_pass_confirm" class="form-control" placeholder="••••••••">
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Guardar Datos Personales</button>
+          </form>
+        </div>
+
+        <!-- PESTAÑA 2: MI CARRITO ACTIVO -->
+        <div id="tab-carrito-activo" class="tab-panel card" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+            <div>
+              <h2 class="titulo-tab" style="margin:0;">Mi Carrito de Compras</h2>
+              <p class="subtitulo-tab" style="margin:0;">Pasteles seleccionados listos para procesar.</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="vaciarCarritoPerfil()">Vaciar Carrito</button>
+          </div>
+          
+          <div id="contenedor-carrito-perfil">
+            <!-- Renderizado desde js/perfil.js -->
+          </div>
+        </div>
+
+        <!-- PESTAÑA 3: PEDIDOS EN CAMINO -->
+        <div id="tab-pedidos-pendientes" class="tab-panel card" style="display:none;">
+          <h2 class="titulo-tab">Pedidos en Proceso de Preparación / Despacho</h2>
+          <p class="subtitulo-tab">Monitorea el avance de tus encargos activos en tiempo real.</p>
+          
+          <div id="contenedor-pendientes-perfil">
+            <!-- Renderizado desde js/perfil.js -->
+          </div>
+        </div>
+
+        <!-- PESTAÑA 4: HISTORIAL DE COMPRAS -->
+        <div id="tab-historial-compras" class="tab-panel card" style="display:none;">
+          <h2 class="titulo-tab">Historial de Compras Entregadas</h2>
+          <p class="subtitulo-tab">Consulta tus compras pasadas y vuelve a descargar tus boletas.</p>
+          
+          <div id="contenedor-historial-perfil">
+            <!-- Renderizado desde js/perfil.js -->
+          </div>
+        </div>
+
+      </section>
     </div>
   </main>
 
+  <!-- Footer -->
+  <footer class="footer">
+    <p><strong>Pastelería Mil Sabores SpA</strong> — 50 Años de Tradición (1976 - 2026)</p>
+    <p>Módulo de Gestión de Perfil de Usuario y Compras — Proyecto Fullstack II (DSY1104)</p>
+  </footer>
+
+  <!-- Scripts en orden de dependencia -->
+  <script src="js/validators.js"></script>
+  <script src="js/orders-manager.js"></script>
+  <script src="js/tracking-manager.js"></script>
+  <script src="js/perfil.js" defer></script>
 </body>
 </html>
