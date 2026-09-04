@@ -100,14 +100,13 @@ const productos = [
   }
 ];
 
-// ============================================
-// 2. VARIABLE que recuerda desde dónde empezar
-// ============================================
+
+//VARIABLE que recuerda desde dónde empezar
+
 let inicio = 0;
 
-// ============================================
-// 3. DIBUJA 7 TARJETAS empezando en "inicio"
-// ============================================
+
+//Funcion que dibuja 7 targetas empezando en "inicio"
 function renderizarTarjetas() {
   const contenedor = document.getElementById("contenedorProductos");
   contenedor.innerHTML = ""; // borra lo anterior
@@ -134,24 +133,37 @@ function renderizarTarjetas() {
 }
 
 // ============================================
-// 4. ROTACIÓN AUTOMÁTICA cada 5 segundos, con fade
+// 4. ROTACIÓN — automática y manual comparten la misma lógica
 // ============================================
 const DURACION_FADE = 400; // en milisegundos, debe coincidir con el "0.4s" del CSS
+let intervaloRotacion = null;
 
-function rotar() {
+// mueve el índice "inicio" en la dirección indicada (1 = derecha, -1 = izquierda)
+function moverIndice(direccion) {
   const contenedor = document.getElementById("contenedorProductos");
 
   contenedor.classList.add("fade-out");   // 1. empieza a desvanecerse
 
   setTimeout(() => {
-    inicio = (inicio + 1) % productos.length; // 2. avanza 1 y da la vuelta
-    renderizarTarjetas();                      // 3. cambia las tarjetas (mientras está invisible)
-    contenedor.classList.remove("fade-out");   // 4. vuelve a aparecer
+    // el "+ productos.length" evita que el resultado quede negativo al ir a la izquierda
+    inicio = (inicio + direccion + productos.length) % productos.length;
+    renderizarTarjetas();                      // 2. cambia las tarjetas (mientras está invisible)
+    contenedor.classList.remove("fade-out");   // 3. vuelve a aparecer
   }, DURACION_FADE);
 }
 
-renderizarTarjetas();           // dibuja las primeras 7 apenas carga la página
-setInterval(rotar, 5000);       // y luego rota cada 5000ms (5 segundos)
+function rotar() {
+  moverIndice(1); // la rotación automática siempre avanza hacia la derecha
+}
+
+function moverManual(direccion) {
+  clearInterval(intervaloRotacion);        // detiene el temporizador actual
+  moverIndice(direccion);                   // mueve en la dirección que tocó el usuario
+  intervaloRotacion = setInterval(rotar, 5000); // reinicia el temporizador desde cero
+}
+
+renderizarTarjetas();                          // dibuja las primeras 7 apenas carga la página
+intervaloRotacion = setInterval(rotar, 5000);  // y luego rota cada 5000ms (5 segundos)
 
 // ============================================
 // 5. FORMATEO DE PRECIO (número -> texto con puntos y CLP)
@@ -205,7 +217,71 @@ function actualizarCantidad() {
 }
 
 function agregarAlCarrito() {
-  const total = productoActual.precioNumero * cantidad;
+  // busca si ese producto ya estaba en el carrito
+  const existente = carrito.find(item => item.nombre === productoActual.nombre);
+
+  if (existente) {
+    existente.cantidad += cantidad;   // ya estaba: suma la cantidad nueva
+  } else {
+    carrito.push({                     // no estaba: lo agrega como item nuevo
+      nombre: productoActual.nombre,
+      imagen: productoActual.imagen,
+      precioNumero: productoActual.precioNumero,
+      cantidad: cantidad
+    });
+  }
+
+  actualizarContadorCarrito();
+
   document.getElementById("modalMensaje").textContent =
-    `Agregaste ${cantidad} x ${productoActual.nombre} — ${formatearPrecio(total)}`;
+    `Agregaste ${cantidad} x ${productoActual.nombre} al carrito.`;
+}
+
+// ============================================
+// 8. CARRITO — estado y funciones
+// ============================================
+let carrito = [];
+
+function actualizarContadorCarrito() {
+  const totalItems = carrito.reduce((suma, item) => suma + item.cantidad, 0);
+  document.getElementById("carritoContador").textContent = totalItems;
+}
+
+function abrirCarrito() {
+  renderizarCarrito();
+  document.getElementById("carritoModal").showModal();
+}
+
+function cerrarCarrito() {
+  document.getElementById("carritoModal").close();
+}
+
+function renderizarCarrito() {
+  const contenedor = document.getElementById("carritoItems");
+
+  if (carrito.length === 0) {
+    contenedor.innerHTML = "<p class='carrito-vacio'>Tu carrito está vacío.</p>";
+    document.getElementById("carritoTotalTexto").textContent = "";
+    return;
+  }
+
+  contenedor.innerHTML = carrito.map((item, indice) => `
+    <div class="carrito-item">
+      <img src="${item.imagen}" alt="${item.nombre}" class="carrito-item-imagen">
+      <div class="carrito-item-info">
+        <p class="carrito-item-nombre">${item.nombre}</p>
+        <p class="carrito-item-detalle">${item.cantidad} x ${formatearPrecio(item.precioNumero)}</p>
+      </div>
+      <button class="carrito-item-quitar" onclick="quitarDelCarrito(${indice})">✕</button>
+    </div>
+  `).join("");
+
+  const total = carrito.reduce((suma, item) => suma + (item.precioNumero * item.cantidad), 0);
+  document.getElementById("carritoTotalTexto").textContent = "Total: " + formatearPrecio(total);
+}
+
+function quitarDelCarrito(indice) {
+  carrito.splice(indice, 1);   // elimina ese item del array
+  actualizarContadorCarrito();
+  renderizarCarrito();          // vuelve a dibujar el carrito sin ese item
 }

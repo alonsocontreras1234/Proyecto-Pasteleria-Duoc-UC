@@ -10,9 +10,31 @@
 
     <body>
 
+        <header class="header-principal">
+
+            <div class="header-logo">Pastelería Mil Sabores</div>
+
+            <!-- Enlaces decorativos por ahora — se les agrega href real más adelante -->
+            <nav class="header-nav">
+                <a href="#">Boletas</a>
+                <a href="#">Perfil</a>
+                <a href="#">Seguimiento</a>
+            </nav>
+
+            <button class="header-carrito" onclick="abrirCarrito()">
+                🛒 <span class="carrito-contador" id="carritoContador">0</span>
+            </button>
+
+        </header>
+
         <section class="productos">       
             <h2>Nuestros pasteles y resetas</h2>
         </section>
+
+        <div class="controles-rotacion">
+            <button onclick="moverManual(-1)" aria-label="Anterior">‹</button>
+            <button onclick="moverManual(1)" aria-label="Siguiente">›</button>
+        </div>
         
         <div class="contenedor" id="contenedorProductos">
 
@@ -87,6 +109,16 @@
                     <p class="modal-mensaje" id="modalMensaje"></p>
                 </div>
             </div>
+        </dialog>
+
+        <dialog class="carrito-caja" id="carritoModal">
+            <button class="modal-cerrar" onclick="cerrarCarrito()">✕</button>
+
+            <h2>Tu carrito</h2>
+
+            <div id="carritoItems"></div>
+
+            <p class="carrito-total" id="carritoTotalTexto"></p>
         </dialog>
 
         <script src="script.js"></script>
