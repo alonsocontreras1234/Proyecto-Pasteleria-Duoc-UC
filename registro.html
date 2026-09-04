@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Super importante para que la pagina se adapte bien si la abren desde el celular -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Pastelería Mil Sabores</title>
+    
+    <!-- Importamos fuentes de Google Fonts (lo use para el diseño de las letras) -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <!-- Enganchamos la hoja de estilos externa sin esto no podriamos usar nuestro css -->
+    <link rel="stylesheet" href="registro.css"> 
+</head>
+<body>
+
+    <!-- Franja rosada de arriba con el mensajito de los envios -->
+    <div class="top-banner">
+        Haz tus pedidos online y retíralos en nuestra tienda.
+    </div>
+
+    <!-- Todo el bloque de arriba: logo a la izquierda y menu a la derecha -->
+    <header class="main-header">
+        <div class="logo-container">
+            <h1 class="logo">Pastelería Mil Sabores</h1>
+        </div>
+        <div class="nav-container">
+            <!-- Enlaces rapidos chiquitos para que aparezcan en la esquina superior derecha -->
+            <div class="top-nav">
+                <a href="#">🔍 BUSCAR</a> |
+                <a href="#">INGRESAR</a> |
+                <a href="#">🛒 CARRO (0)</a>
+            </div>
+            <!-- El menu principal usando nav y ul  -->
+            <nav class="main-menu">
+                <ul>
+                    <li><a href="#">INICIO</a></li>
+                    <li><a href="#">PRODUCTOS ⌄</a></li>
+                    <li><a href="#">CONTACTO</a></li>
+                    <li><a href="#">RESERVA YA!</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Todo el contenido central va aca con una clase para centrar las cajas con CSS -->
+    <main class="login-layout">
+        
+        <!-- CAJA DE REGISTRO -->
+        <!-- Esta seccion es la que se ve apenas entras a la pagina -->
+        <section id="registro-section" class="form-box">
+            <h2>CREA TU CUENTA EN<br><span>MIL SABORES</span></h2>
+            
+            <!-- El form principal el ID es clave para capturarlo después en el app.js -->
+            <form id="registro-form">
+                
+                <div class="form-group">
+                    <label for="rut">RUT (Sin puntos ni guión)</label>
+                    <!-- Le puse min y maxlength para frenar RUT con mal formato directo desde el HTML -->
+                    <input type="text" id="rut" required minlength="7" maxlength="9" placeholder="Ej: 19011022K">
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre">NOMBRE COMPLETO</label>
+                    <input type="text" id="nombre" required maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="correo">E-MAIL</label>
+                    <!-- El type="email" te obliga a poner el @ -->
+                    <input type="email" id="correo" required maxlength="100" placeholder="ejemplo@duocuc.cl">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">CONTRASEÑA</label>
+                    <input type="password" id="password" required minlength="4" maxlength="10">
+                </div>
+                
+                <div class="form-group">
+                    <label for="fecha_nacimiento">FECHA DE NACIMIENTO</label>
+                    <!-- El type="date" levanta el calendario nativo del navegador mucho mas comodo -->
+                    <input type="date" id="fecha_nacimiento" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="codigo_promo">CÓDIGO PROMOCIONAL (Opcional)</label>
+                    <!-- Este es el unico input sin 'required' porque el usuario puede no tener codigo -->
+                    <input type="text" id="codigo_promo" placeholder="Ej: FELICES50">
+                </div>
+                
+                <!-- Botón que dispara el evento submit del form -->
+                <button type="submit" class="btn-dark">CREAR CUENTA</button>
+            </form>
+            
+            <!--  Esto inyecta el texto verde de exito o rojo de error -->
+            <div id="registro-mensajes"></div>
+            
+            <!-- El pie de la caja por si el usuario ya esta registrado -->
+            <div class="new-user">
+                <p>¿YA TIENES CUENTA?</p>
+                <p class="subtitle">Inicia sesión para hacer tu proceso de compra más rápido.</p>
+                <button class="btn-light">INICIAR SESIÓN</button>
+            </div>
+        </section>
+
+        <!-- CAJA DE PERFIL -->
+        <!-- Le puse display: none directo aca para que parta oculta hasta que pase el registro -->
+        <section id="perfil-section" class="form-box" style="display: none;">
+            <h2>MI PERFIL</h2>
+            <form id="perfil-form">
+                <div class="form-group">
+                    <label for="perfil_nombre">NOMBRE COMPLETO</label>
+                    <input type="text" id="perfil_nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="perfil_preferencia">PREFERENCIA DE COMPRA</label>
+                    <!-- Menú desplegable para guardar los gustos del cliente -->
+                    <select id="perfil_preferencia">
+                        <option value="Sin preferencia">Seleccionar...</option>
+                        <option value="Tortas Cuadradas">Tortas Cuadradas</option>
+                        <option value="Tortas Circulares">Tortas Circulares</option>
+                        <option value="Productos Veganos">Productos Veganos</option>
+                    </select>
+                </div>
+                <div class="beneficios-activos">
+                    <h3>MIS BENEFICIOS:</h3>
+                    <!-- Lista vacia donde el JS va a tirar los <li> con los descuentos ganados -->
+                    <ul id="lista-beneficios"></ul>
+                </div>
+                <button type="submit" class="btn-dark">ACTUALIZAR DATOS</button>
+                
+                <!-- Este boton es type="button" para que no mande el form lo uso solo para limpiar el localStorage -->
+                <button type="button" id="btn-cerrar-sesion" class="btn-light" style="margin-top: 10px;">CERRAR SESIÓN</button>
+            </form>
+            <div id="perfil-mensajes"></div>
+        </section>
+    </main>
+
+    <!-- Script al final del body para que cargue toda la grafica antes de ejecutar la logica se necesita para poder usa el javascrpit -->
+    <script src="registro.js"></script>
+</body>
+</html>
