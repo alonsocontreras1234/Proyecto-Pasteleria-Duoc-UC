@@ -11,7 +11,7 @@ registro.css: Aplicación del diseño visual basado en el mockup, utilizando la 
 
 registro.js: Integración de localStorage para simular el almacenamiento de datos del cliente sin necesidad de base de datos. Se incluyeron las siguientes validaciones en JavaScript:
 
-Validación matemática real del RUT chileno mediante el algoritmo Módulo 11 (bloquea el formulario si el formato o dígito verificador son incorrectos).
+Validación  del RUT chileno mediante el algoritmo Módulo 11 (bloquea el formulario si el formato o dígito verificador son incorrectos).
 
 Cálculo de edad dinámico con la fecha de nacimiento para asignar automáticamente el 50% de descuento a usuarios mayores de 50 años.
 
