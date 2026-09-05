@@ -3,25 +3,20 @@ Evaluacion Parcial 1 HTML sobre una pastelería
 
 <img width="407" height="140" alt="image" src="https://github.com/user-attachments/assets/6859941b-f920-4bfb-80fb-921354ccd971" />
 
-#E7C5B1 (Beige / Durazno claro)
-#C98025 (Ocre / Mostaza tostado)
-#C64B0D (Naranja teja / Terracota)
-#A62522 (Rojo ladrillo / Carmesí oscuro)
-#5A0609 (Burdeos / Vino tinto profundo)
-#GUIA COMENTARIOS GITHUB
+Avances: Módulo de Registro y Autenticación
 
-Estándar de seguimiento sobre los comentarios en GitHub que tenemos que seguir
+Se implementó toda la vista y lógica para la creación de cuentas de clientes y la gestión de sus perfiles, cumpliendo con las reglas de negocio de Pastelería Mil Sabores.
 
-feat – agregaste una funcionalidad nueva
+registro.html: Maquetación semántica del formulario de creación de cuenta y la vista interna del perfil (esta última aparece dinámicamente al iniciar sesión).
 
-fix – corregiste un error o bug
+registro.css: Aplicación del diseño visual basado en el mockup, utilizando la paleta de colores corporativa (crema, rosa suave y chocolate).
 
-docs – cambios solo en documentación
+registro.js: Integración de localStorage para simular el almacenamiento de datos del cliente sin necesidad de base de datos. Se incluyeron las siguientes validaciones en JavaScript:
 
-style – formato del código (espacios, indentación), sin afectar la lógica
+Validación matemática real del RUT chileno mediante el algoritmo Módulo 11 (bloquea el formulario si el formato o dígito verificador son incorrectos).
 
-refactor – reordenaste u organizaste código sin cambiar su comportamiento
+Cálculo de edad dinámico con la fecha de nacimiento para asignar automáticamente el 50% de descuento a usuarios mayores de 50 años.
 
-test – agregaste o corregiste pruebas
+Validación del código promocional estático "FELICES50".
 
-chore – tareas menores (configuración, dependencias, etc.)
+Filtro de dominio para detectar correos institucionales de Duoc UC, cruzado con la validación de la fecha de cumpleaños actual para habilitar la promoción de la torta gratis.
