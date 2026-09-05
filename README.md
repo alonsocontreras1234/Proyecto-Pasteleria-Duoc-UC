@@ -1,7 +1,6 @@
 # Proyecto-Pasteleria-Duoc-UC
 Evaluacion Parcial 1 HTML sobre una pastelería
 
-<img width="407" height="140" alt="image" src="https://github.com/user-attachments/assets/6859941b-f920-4bfb-80fb-921354ccd971" />
 
 Avances: Módulo de Registro y Autenticación
 
