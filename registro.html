@@ -1,141 +1,105 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <!-- Super importante para que la pagina se adapte bien si la abren desde el celular -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Pastelería Mil Sabores</title>
-    
-    <!-- Importamos fuentes de Google Fonts (lo use para el diseño de las letras) -->
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
-    <!-- Enganchamos la hoja de estilos externa sin esto no podriamos usar nuestro css -->
-    <link rel="stylesheet" href="registro.css"> 
+  <meta charset="UTF-8">
+  <!-- Ayuda a visualizar la app desde un telefono o tablet nos ayuda a ajustar la pantalla  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro y Acceso | Mil Sabores</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <!-- Contenedor Principal de Registro -->
+  <main class="main-container" style="max-width: 480px; margin: 40px auto;">
+    <div class="card" style="padding: 30px;">
+      
+      <!-- FORMULARIO DE REGISTRO -->
+      <form id="form-registro">
+        <h2 style="font-family: 'Georgia', serif; color: #a04000; text-align: center; margin-bottom: 5px;">
+          CREA TU CUENTA EN <br><em>Mil Sabores</em>
+        </h2>
+        <p style="text-align: center; font-size: 0.85rem; color: #666; margin-bottom: 20px;">
+          Forma parte del 50° Aniversario y accede a promociones exclusivas
+        </p>
 
-    <!-- Franja rosada de arriba con el mensajito de los envios -->
-    <div class="top-banner">
-        Haz tus pedidos online y retíralos en nuestra tienda.
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">RUT (Sin puntos ni guión)</label>
+          <input type="text" id="reg_rut" class="form-control" placeholder="Ej: 19011022K" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">NOMBRE COMPLETO</label>
+          <input type="text" id="reg_nombre" class="form-control" placeholder="Tu nombre y apellido" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">E-MAIL</label>
+          <input type="email" id="reg_email" class="form-control" placeholder="ejemplo@duocuc.cl" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">CONTRASEÑA</label>
+          <input type="password" id="reg_pass" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">FECHA DE NACIMIENTO</label>
+          <input type="date" id="reg_fecha" class="form-control" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label">CÓDIGO PROMOCIONAL (Opcional)</label>
+          <input type="text" id="reg_codigo" class="form-control" placeholder="Ej: FELICES50">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; background: #4a0e0e; border: none; padding: 12px;">
+          CREAR CUENTA
+        </button>
+      </form>
+
+      <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
+
+      <!-- SECCIÓN IR A INICIAR SESIÓN -->
+      <div style="text-align: center;">
+        <h3 style="font-size: 0.95rem; color: #333; margin-bottom: 5px;">¿YA TIENES CUENTA?</h3>
+        <p style="font-size: 0.8rem; color: #666; margin-bottom: 12px;">
+          Inicia sesión para hacer tu proceso de compra más rápido.
+        </p>
+        <button type="button" class="btn btn-secondary" id="btn-abrir-login" style="width: 100%; border: 1px solid #a04000; color: #a04000; background: transparent;">
+          INICIAR SESIÓN
+        </button>
+      </div>
+
     </div>
+  </main>
 
-    <!-- Todo el bloque de arriba: logo a la izquierda y menu a la derecha -->
-    <header class="main-header">
-        <div class="logo-container">
-            <h1 class="logo">Pastelería Mil Sabores</h1>
+  <!-- MODAL FLOTANTE DE INICIO DE SESIÓN -->
+  <div id="modal-login" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="width: 90%; max-width: 400px; padding: 25px; background: white; border-radius: 12px; position: relative;">
+      <button type="button" id="btn-cerrar-login" style="position: absolute; top: 10px; right: 15px; border: none; background: transparent; font-size: 1.2rem; cursor: pointer;">✕</button>
+      
+      <h2 style="font-family: 'Georgia', serif; color: #a04000; margin-bottom: 15px; text-align: center;">Iniciar Sesión</h2>
+      
+      <form id="form-login">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Correo Electrónico</label>
+          <input type="email" id="login_email" class="form-control" placeholder="tu@correo.cl" required>
         </div>
-        <div class="nav-container">
-            <!-- Enlaces rapidos chiquitos para que aparezcan en la esquina superior derecha -->
-            <div class="top-nav">
-                <a href="#">🔍 BUSCAR</a> |
-                <a href="#">INGRESAR</a> |
-                <a href="#">🛒 CARRO (0)</a>
-            </div>
-            <!-- El menu principal usando nav y ul  -->
-            <nav class="main-menu">
-                <ul>
-                    <li><a href="#">INICIO</a></li>
-                    <li><a href="#">PRODUCTOS ⌄</a></li>
-                    <li><a href="#">CONTACTO</a></li>
-                    <li><a href="#">RESERVA YA!</a></li>
-                </ul>
-            </nav>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label">Contraseña</label>
+          <input type="password" id="login_pass" class="form-control" placeholder="••••••••" required>
         </div>
-    </header>
 
-    <!-- Todo el contenido central va aca con una clase para centrar las cajas con CSS -->
-    <main class="login-layout">
-        
-        <!-- CAJA DE REGISTRO -->
-        <!-- Esta seccion es la que se ve apenas entras a la pagina -->
-        <section id="registro-section" class="form-box">
-            <h2>CREA TU CUENTA EN<br><span>MIL SABORES</span></h2>
-            
-            <!-- El form principal el ID es clave para capturarlo después en el app.js -->
-            <form id="registro-form">
-                
-                <div class="form-group">
-                    <label for="rut">RUT (Sin puntos ni guión)</label>
-                    <!-- Le puse min y maxlength para frenar RUT con mal formato directo desde el HTML -->
-                    <input type="text" id="rut" required minlength="7" maxlength="9" placeholder="Ej: 19011022K">
-                </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; background: #a04000; border: none; padding: 10px;">
+          Ingresar a Mi Cuenta
+        </button>
+      </form>
+    </div>
+  </div>
 
-                <div class="form-group">
-                    <label for="nombre">NOMBRE COMPLETO</label>
-                    <input type="text" id="nombre" required maxlength="100">
-                </div>
-                
-                <div class="form-group">
-                    <label for="correo">E-MAIL</label>
-                    <!-- El type="email" te obliga a poner el @ -->
-                    <input type="email" id="correo" required maxlength="100" placeholder="ejemplo@duocuc.cl">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">CONTRASEÑA</label>
-                    <input type="password" id="password" required minlength="4" maxlength="10">
-                </div>
-                
-                <div class="form-group">
-                    <label for="fecha_nacimiento">FECHA DE NACIMIENTO</label>
-                    <!-- El type="date" levanta el calendario nativo del navegador mucho mas comodo -->
-                    <input type="date" id="fecha_nacimiento" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="codigo_promo">CÓDIGO PROMOCIONAL (Opcional)</label>
-                    <!-- Este es el unico input sin 'required' porque el usuario puede no tener codigo -->
-                    <input type="text" id="codigo_promo" placeholder="Ej: FELICES50">
-                </div>
-                
-                <!-- Botón que dispara el evento submit del form -->
-                <button type="submit" class="btn-dark">CREAR CUENTA</button>
-            </form>
-            
-            <!--  Esto inyecta el texto verde de exito o rojo de error -->
-            <div id="registro-mensajes"></div>
-            
-            <!-- El pie de la caja por si el usuario ya esta registrado -->
-            <div class="new-user">
-                <p>¿YA TIENES CUENTA?</p>
-                <p class="subtitle">Inicia sesión para hacer tu proceso de compra más rápido.</p>
-                <button class="btn-light">INICIAR SESIÓN</button>
-            </div>
-        </section>
-
-        <!-- CAJA DE PERFIL -->
-        <!-- Le puse display: none directo aca para que parta oculta hasta que pase el registro -->
-        <section id="perfil-section" class="form-box" style="display: none;">
-            <h2>MI PERFIL</h2>
-            <form id="perfil-form">
-                <div class="form-group">
-                    <label for="perfil_nombre">NOMBRE COMPLETO</label>
-                    <input type="text" id="perfil_nombre" required>
-                </div>
-                <div class="form-group">
-                    <label for="perfil_preferencia">PREFERENCIA DE COMPRA</label>
-                    <!-- Menú desplegable para guardar los gustos del cliente -->
-                    <select id="perfil_preferencia">
-                        <option value="Sin preferencia">Seleccionar...</option>
-                        <option value="Tortas Cuadradas">Tortas Cuadradas</option>
-                        <option value="Tortas Circulares">Tortas Circulares</option>
-                        <option value="Productos Veganos">Productos Veganos</option>
-                    </select>
-                </div>
-                <div class="beneficios-activos">
-                    <h3>MIS BENEFICIOS:</h3>
-                    <!-- Lista vacia donde el JS va a tirar los <li> con los descuentos ganados -->
-                    <ul id="lista-beneficios"></ul>
-                </div>
-                <button type="submit" class="btn-dark">ACTUALIZAR DATOS</button>
-                
-                <!-- Este boton es type="button" para que no mande el form lo uso solo para limpiar el localStorage -->
-                <button type="button" id="btn-cerrar-sesion" class="btn-light" style="margin-top: 10px;">CERRAR SESIÓN</button>
-            </form>
-            <div id="perfil-mensajes"></div>
-        </section>
-    </main>
-
-    <!-- Script al final del body para que cargue toda la grafica antes de ejecutar la logica se necesita para poder usa el javascrpit -->
-    <script src="registro.js"></script>
+  <script src="js/registro.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/validators.js"></script>
+ 
 </body>
 </html>
