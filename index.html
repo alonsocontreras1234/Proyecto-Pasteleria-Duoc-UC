@@ -1,34 +1,63 @@
 <!DOCTYPE html>
 <html lang="es">
 
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>PASTELERIA MIL SABORES</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pastelería Mil Sabores - 50° Aniversario</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
 
-    <body>
+<body>
 
-        <header class="header-principal">
-
-            <div class="header-logo">Pastelería Mil Sabores</div>
-
-            <!-- Enlaces decorativos por ahora — se les agrega href real más adelante -->
-            <nav class="header-nav">
-                <a href="#">Boletas</a>
-                <a href="#">Perfil</a>
-                <a href="#">Seguimiento</a>
+    <!-- NAVEGACIÓN UNIVERSAL -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="brand-wrapper">
+                <span class="brand-icon"></span>
+                <div>
+                    <h1 class="brand-logo">Mil Sabores</h1>
+                    <span class="brand-tagline">50 Aniversario</span>
+                </div>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link active">Inicio</a></li>
+                    <li><a href="catalogo.html" class="nav-link">Catálogo</a></li>
+                    <li><a href="seguimiento.html" class="nav-link">Seguimiento</a></li>
+                    <li><a href="perfil.html">Mi perfil</a></li>
+                    <li><a href="registro.html">Registrate</a></li>
+                    <li>
+                        <button type="button" id="btn-abrir-carrito" class="nav-carrito-btn" onclick="abrirCarrito()" aria-label="Ver carrito de compras">
+                            🛒 <span id="carritoContador" class="carrito-contador">0</span>
+                        </button>
+                    </li>
+                </ul>
             </nav>
+        </div>
+    </header>
 
-            <button class="header-carrito" onclick="abrirCarrito()">
-                🛒 <span class="carrito-contador" id="carritoContador">0</span>
-            </button>
+    <main class="main-container">
 
-        </header>
+        <!-- BÚSQUEDA AVANZADA -->
+        <section class="card" style="margin-bottom: 30px; background-color: var(--bg-primary, #fff8f0);">
+            <h3 style="text-align: center; margin-bottom: 15px;">🔍 Encuentra tu pastel favorito</h3>
+            <form style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;" onsubmit="return false;">
+                <input type="text" id="buscadorInput" class="form-control" placeholder="Buscar por nombre..." style="flex: 1; min-width: 200px;">
+                <select id="filtroTipo" class="form-control" style="width: auto;">
+                    <option value="todos">Todas las categorías</option>
+                    <option value="cuadrada">Tortas Cuadradas</option>
+                    <option value="circular">Tortas Circulares</option>
+                    <option value="individual">Postres Individuales</option>
+                </select>
+                <button type="button" class="btn btn-primary">Buscar</button>
+            </form>
+        </section>
 
-        <section class="productos">       
-            <h2>Nuestros pasteles y resetas</h2>
+        <!-- SECCIÓN DE PRODUCTOS (ALONSO) -->
+        <section class="productos">     
+            <h2 class="section-title">Nuestros pasteles y recetas</h2>
+            <p class="section-subtitle">Explora nuestra variedad exclusiva del 50° Aniversario</p>
         </section>
 
         <div class="controles-rotacion">
@@ -36,92 +65,191 @@
             <button onclick="moverManual(1)" aria-label="Siguiente">›</button>
         </div>
         
-        <div class="contenedor" id="contenedorProductos">
-
-        </div>
+        <!-- INSERCIÓN DINÁMICA DE TARJETAS -->
+        <div class="contenedor" id="contenedorProductos"></div>
         
-       <div class="historia">  
-            <h2>Nuestra historia</h2>
-            <p>
-                En 1995, la Pastelería 1000 Sabores hizo historia al colaborar en la creación
-                de la torta más grande del mundo, un hito reconocido por el Libro Guinness que
-                marcó para siempre su nombre en la repostería chilena. Treinta años después,
-                esa misma pastelería que una vez desafió los límites de la repostería
-                tradicional se atreve a un nuevo desafío: renovar su sistema de ventas online
-                para ofrecer a sus clientes una experiencia de compra moderna, simple y
-                accesible, manteniendo intacta la calidad y el cariño que la hicieron famosa.
-            </p>
-        </div>
-
-        <div class="contenedor_noticias">
-            <h2>Noticias</h2>
-            <article class="noticia">
-                <img src="img/noticias/noticia-1.jpg" alt="Nueva sucursal en el centro">
-                <div class="noticia-info">
-                    <h3>Abrimos nueva sucursal</h3>
-                    <p>Desde este mes puedes visitarnos también en el centro de la ciudad.</p>
-                </div>
-            </article>
+        <!-- HISTORIA Y TRADICIÓN -->
+        <section class="seccion-historia-nostalgica">
+        <div class="historia-grid">
+            <!-- Columna Izquierda: Texto e hitos -->
+            <div class="historia-texto-box">
+            <div class="badge-epoca">📜 Hito Histórico • 1995</div>
+            <h2 class="titulo-nostalgico">Nuestra Historia de Tradición</h2>
             
-            <article class="noticia">
-                <img src="img/noticias/noticia-2.jpg" alt="Nuevo sabor de temporada">
-                <div class="noticia-info">
-                    <h3>Nuevo sabor de temporada</h3>
-                    <p>Lanzamos el pastel de mango y maracuyá, disponible solo por tiempo limitado.</p>
-                </div>
-            </article>
+            <p class="parrafo-destacado">
+                En <strong>1995</strong>, Pastelería Mil Sabores hizo historia al colaborar en la elaboración de la <em>torta más grande del mundo</em>, un logro certificado por el <strong>Libro Guinness</strong> que selló nuestro nombre en la repostería nacional.
+            </p>
 
-            <article class="noticia">
-                <img src="img/noticias/noticia-3.jpg" alt="Colaboración con productores locales">
-                <div class="noticia-info">
-                    <h3>Ahora con ingredientes locales</h3>
-                    <p>Nos aliamos con productores de la zona para usar frutas y lácteos de mejor calidad.</p>
+            <p class="parrafo-cuerpo">
+                Tres décadas después, esa misma pastelería que desafió los límites artesanales se renueva. Adaptamos nuestra plataforma digital para brindarte una compra rápida y moderna, manteniendo intactas las recetas familiares y el amor de siempre.
+            </p>
+
+            <!-- Indicadores Nostálgicos -->
+            <div class="hitos-contador">
+                <div class="hito-item">
+                <span class="hito-numero">1995</span>
+                <span class="hito-etiqueta">Récord Guinness</span>
                 </div>
-            </article>
+                <div class="hito-separador"></div>
+                <div class="hito-item">
+                <span class="hito-numero">+30</span>
+                <span class="hito-etiqueta">Años de Receta</span>
+                </div>
+            </div>
+            </div>
+
+            <!-- Columna Derecha: Tarjeta Polaroid Nostálgica -->
+            <div class="historia-media">
+            <div class="polaroid-frame">
+                <div class="sello-guinness">OFICIAL GUINNESS</div>
+                <div class="polaroid-foto">
+                <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=700&q=80" alt="Torta Histórica Mil Sabores 1995">
+                </div>
+                <div class="polaroid-pie">
+                <span>Santiago, Chile — 1995</span>
+                </div>
+            </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- CONTENIDO EDUCATIVO Y COMUNIDAD (DUOC UC) -->
+        <section class="seccion-noticias">
+        <div class="noticias-header">
+            <span class="badge-subtitulo">Novedades & Eventos</span>
+            <h2 class="titulo-seccion">Noticias de Nuestra Casa</h2>
+            <p class="descripcion-seccion">Entérate de nuestros últimos hitos, lanzamientos de temporada y beneficios para la comunidad.</p>
         </div>
 
-        <dialog class="modal-caja" id="modalPastel">
-            <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
-
-            <div class="modal-izquierda">
-                <img id="modalImagen" src="" alt="">
-                <div class="modal-receta">
-                    <h3>Receta</h3>
-                    <ol id="modalReceta"></ol>
-                </div>
+        <div class="noticias-grid">
+            <!-- Noticia 1: Aniversario / Nostalgia -->
+            <article class="noticia-card">
+            <div class="noticia-imagen">
+                <span class="noticia-badge badge-aniversario">50 Aniversario</span>
+                <img src="https://tse4.mm.bing.net/th/id/OIP.--s6qLaqNRCfmIIut4japQAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Edición Especial 50 Años">
             </div>
-
-            <div class="modal-derecha">
-                <h2 id="modalTitulo"></h2>
-                <p id="modalDescripcion"></p>
-
-                <div class="modal-compra">
-                    <div class="modal-cantidad">
-                        <button onclick="cambiarCantidad(-1)">−</button>
-                        <span id="modalCantidad">1</span>
-                        <button onclick="cambiarCantidad(1)">+</button>
-                    </div>
-
-                    <p class="modal-precio-total" id="modalPrecioTotal"></p>
-
-                    <button class="modal-comprar" onclick="agregarAlCarrito()">Agregar al carrito</button>
-
-                    <p class="modal-mensaje" id="modalMensaje"></p>
+            <div class="noticia-contenido">
+                <div class="noticia-meta">
+                <span class="noticia-fecha">📅 12 Octubre, 2026</span>
+                <span class="noticia-autor">Por: Maestros Pasteleros</span>
                 </div>
+                <h3 class="noticia-titulo">Lanzamiento Colección "Recetas de Antaño"</h3>
+                <p class="noticia-extracto">
+                Revivimos los sabores icónicos de 1976. Descubre la Torta Holandesa Clásica y los Merengues de Lúcuma preparados con la receta original de la abuela.
+                </p>
+                <a href="#" class="btn-leer-mas">Leer noticia completa ➔</a>
             </div>
-        </dialog>
+            </article>
 
-        <dialog class="carrito-caja" id="carritoModal">
-            <button class="modal-cerrar" onclick="cerrarCarrito()">✕</button>
+            <!-- Noticia 2: Convenio Duoc UC -->
+            <article class="noticia-card">
+            <div class="noticia-imagen">
+                <span class="noticia-badge badge-convenio">Convenio Académico</span>
+                <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80" alt="Convenio Duoc UC">
+            </div>
+            <div class="noticia-contenido">
+                <div class="noticia-meta">
+                <span class="noticia-fecha">📅 28 Septiembre, 2026</span>
+                <span class="noticia-autor">Por: Comunidad Mil Sabores</span>
+                </div>
+                <h3 class="noticia-titulo">Beneficio Exclusivo para Alumnos Duoc UC</h3>
+                <p class="noticia-extracto">
+                Al registrarte con tu correo institucional (<code>@duocuc.cl</code>), obtendrás un descuento especial en tus pedidos de cumpleaños durante todo el año escolar.
+                </p>
+                <a href="#" class="btn-leer-mas">Leer noticia completa ➔</a>
+            </div>
+            </article>
 
-            <h2>Tu carrito</h2>
+            <!-- Noticia 3: Taller y Masterclass -->
+            <article class="noticia-card">
+            <div class="noticia-imagen">
+                <span class="noticia-badge badge-taller">Masterclass</span>
+                <img src="https://images.unsplash.com/photo-1517433670267-08bbd4be890f?auto=format&fit=crop&w=600&q=80" alt="Masterclass Repostería">
+            </div>
+            <div class="noticia-contenido">
+                <div class="noticia-meta">
+                <span class="noticia-fecha">📅 15 Agosto, 2026</span>
+                <span class="noticia-autor">Por: Chef Ejecutivo</span>
+                </div>
+                <h3 class="noticia-titulo">Taller Abierto: Secretos del Hojaldre Artesanal</h3>
+                <p class="noticia-extracto">
+                Abrimos las puertas de nuestro taller en Providencia para enseñarle a la comunidad los secretos para lograr mil hojas crujientes y perfectas.
+                </p>
+                <a href="#" class="btn-leer-mas">Leer noticia completa ➔</a>
+            </div>
+            </article>
+        </div>
+        </section>
 
-            <div id="carritoItems"></div>
+    </main>
 
-            <p class="carrito-total" id="carritoTotalTexto"></p>
-        </dialog>
+    <!-- MODAL DE DETALLE DE PASTEL (ALONSO) -->
+    <dialog class="modal-caja" id="modalPastel">
+        <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
 
-        <script src="script.js"></script>
-    </body>
+        <div class="modal-izquierda">
+            <img id="modalImagen" src="" alt="">
+            <div class="modal-receta">
+                <h3>Receta</h3>
+                <ol id="modalReceta"></ol>
+            </div>
+        </div>
+
+        <div class="modal-derecha">
+            <h2 id="modalTitulo"></h2>
+            <p id="modalDescripcion"></p>
+
+            <div class="modal-compra">
+                <div class="modal-cantidad">
+                    <button onclick="cambiarCantidad(-1)">−</button>
+                    <span id="modalCantidad">1</span>
+                    <button onclick="cambiarCantidad(1)">+</button>
+                </div>
+
+                <p class="modal-precio-total" id="modalPrecioTotal"></p>
+
+                <button class="modal-comprar" onclick="agregarAlCarrito()">Agregar al carrito</button>
+
+                <p class="modal-mensaje" id="modalMensaje"></p>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- MODAL DE CARRITO (ALONSO) -->
+    <dialog class="carrito-caja" id="carritoModal">
+        <button class="modal-cerrar" onclick="cerrarCarrito()">✕</button>
+
+        <h2>Tu carrito</h2>
+
+        <div id="carritoItems"></div>
+
+        <div class="carrito-cupon">
+            <label for="inputCupon" class="carrito-cupon-label">Código de descuento</label>
+            <div class="carrito-cupon-fila">
+                <input type="text" id="inputCupon" placeholder="Ej: FELICES50">
+                <button type="button" onclick="aplicarCupon()">Aplicar</button>
+            </div>
+            <p id="cuponMensaje" class="carrito-cupon-mensaje"></p>
+        </div>
+
+        <p class="carrito-total" id="carritoTotalTexto"></p>
+
+        <button type="button" id="btn-comprar-carrito" class="btn-comprar-carrito" onclick="comprarCarrito()">Comprar</button>
+        <p id="compraMensaje" class="carrito-compra-mensaje"></p>
+    </dialog>
+
+    <!-- PIE DE PÁGINA Y REDES SOCIALES -->
+    <footer>
+        <p>© 2026 Pastelería Mil Sabores - Celebrando 50 años de tradición</p>
+        <div style="margin-top: 10px; display: flex; gap: 15px; justify-content: center;">
+            <a href="#" style="color: inherit; text-decoration: none;">Instagram</a>
+            <a href="#" style="color: inherit; text-decoration: none;">Facebook</a>
+            <a href="#" style="color: inherit; text-decoration: none;">WhatsApp</a>
+        </div>
+    </footer>
+
+    <!-- VINCULACIÓN JS Y CSS EN SUS RUTAS CORRECTAS -->
+    <script src="js/script.js"></script>
+</body>
 
 </html>
