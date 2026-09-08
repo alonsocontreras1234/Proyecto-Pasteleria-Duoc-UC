@@ -205,6 +205,19 @@
   <script src="js/tracking.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // 1. Precargar datos de usuario registrado si existe sesión activa
+      const usuarioSesion = localStorage.getItem('usuarioActual');
+      if (usuarioSesion) {
+        try {
+          const u = JSON.parse(usuarioSesion);
+          if (u.nombre && document.getElementById('nombre')) document.getElementById('nombre').value = u.nombre;
+          if (u.rut && document.getElementById('rut')) document.getElementById('rut').value = u.rut;
+          if (u.email && document.getElementById('email')) document.getElementById('email').value = u.email;
+          if (u.correo && document.getElementById('email') && !u.email) document.getElementById('email').value = u.correo;
+        } catch (e) {
+          console.warn("No se pudo precargar sesión", e);
+        }
+      }
       // 1. Configurar fecha mínima de despacho (+24h)
       const dateInput = document.getElementById('fechaPreferida');
       dateInput.min = Validators.getMinDeliveryDate();

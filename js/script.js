@@ -372,13 +372,16 @@ function comprarCarrito() {
     return;
   }
 
-  carrito = [];
-  cuponAplicado = "";
-  localStorage.removeItem("carrito");
-  localStorage.removeItem("cuponAplicado");
-  actualizarContadorCarrito();
-  renderizarCarrito();
+  // Sincronizar 'carrito' y 'cart' para el módulo de checkout y redirigir
+  guardarCarrito();
+  localStorage.setItem('cart', JSON.stringify(carrito.map(item => ({
+    id: item.codigo || item.id || 'TC001',
+    name: item.nombre || item.name || 'Pastel',
+    category: item.categoria || item.category || 'Repostería',
+    price: item.precioNumero || item.price || 0,
+    quantity: item.cantidad || item.quantity || 1,
+    dedication: item.dedicatoria || item.dedication || ''
+  }))));
 
-  mensaje.textContent = "¡Compra realizada con éxito!";
-  mensaje.style.color = "#2e7d32";
+  window.location.href = "checkout.html";
 }
