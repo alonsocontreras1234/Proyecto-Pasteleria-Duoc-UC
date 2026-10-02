@@ -1,0 +1,101 @@
+﻿:root {
+  --pms-cream: #fff8f0;
+  --pms-brown: #6b2d2d;
+  --pms-gold: #e67e22;
+  --pms-dark: #2c3e50;
+  --pms-bg-card: #ffffff;
+}
+
+body {
+  background-color: var(--pms-cream);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #333333;
+}
+
+.brand-navbar {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid #f1e4d3;
+}
+
+.brand-title {
+  color: var(--pms-brown) !important;
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: 0.5px;
+}
+
+.brand-logo-icon {
+  font-size: 2.2rem;
+}
+
+.brand-sub {
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--pms-gold) !important;
+  font-weight: 700;
+}
+
+/* HERO SECTION */
+.bg-gradient-custom {
+  background: linear-gradient(135deg, #6b2d2d 0%, #8b3a3a 50%, #a04646 100%);
+}
+
+/* PRODUCT CARDS */
+.product-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(107, 45, 45, 0.12) !important;
+}
+
+.product-img-wrapper {
+  height: 210px;
+  overflow: hidden;
+  background-color: #fdfaf6;
+}
+
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
+/* FOOTER */
+.footer-custom {
+  background-color: #f7eee4;
+  border-top: 1px solid #ebd9c8;
+}
+
+/* BOLETA PRINTING */
+@media print {
+  .d-print-none,
+  .brand-navbar,
+  .footer-custom,
+  .cart-drawer {
+    display: none !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+  }
+
+  .boleta-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .boleta-paper {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
