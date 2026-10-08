@@ -182,7 +182,7 @@ const Checkout = () => {
 
       {items.length === 0 && (
         <Alert variant="warning" className="d-flex align-items-center justify-content-between">
-          <span>⚠️ Actualmente no tienes productos en tu carrito.</span>
+          <span>Actualmente no tienes productos en tu carrito.</span>
           <Button variant="outline-dark" size="sm" onClick={() => navigate('/catalogo')}>
             Ir al Catálogo
           </Button>
@@ -378,9 +378,9 @@ const Checkout = () => {
                   onChange={handleChange}
                   size="lg"
                 >
-                  <option value="Webpay Plus (Débito/Crédito)">💳 Webpay Plus (Débito / Crédito)</option>
-                  <option value="Transferencia Electrónica Directa">🏦 Transferencia Bancaria Directa</option>
-                  <option value="Mercado Pago">📱 Mercado Pago</option>
+                  <option value="Webpay Plus (Débito/Crédito)">Webpay Plus (Débito / Crédito)</option>
+                  <option value="Transferencia Electrónica Directa">Transferencia Bancaria Directa</option>
+                  <option value="Mercado Pago">Mercado Pago</option>
                 </Form.Select>
               </Card.Body>
             </Card>

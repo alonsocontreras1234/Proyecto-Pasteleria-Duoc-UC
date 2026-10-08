@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Card, Table, Button, Badge, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { Validators } from '../utils/validators';
@@ -24,7 +24,6 @@ const Boleta = () => {
   if (!orden) {
     return (
       <Container className="py-5 text-center">
-        <span style={{ fontSize: '3.5rem' }}>📄</span>
         <h3 className="mt-3 fw-bold">No hay ninguna boleta activa</h3>
         <p className="text-muted">Realiza un pedido a través del checkout para generar tu comprobante fiscal.</p>
         <Button as={Link} to="/catalogo" variant="primary">
@@ -53,7 +52,7 @@ const Boleta = () => {
           ← Ir a Seguimiento en Vivo
         </Link>
         <Button variant="dark" onClick={handleImprimir} className="fw-semibold">
-          🖨️ Imprimir / Guardar PDF
+          Imprimir / Guardar PDF
         </Button>
       </div>
 
@@ -62,7 +61,6 @@ const Boleta = () => {
         <div className="d-flex justify-content-between flex-wrap gap-3 pb-4 border-bottom">
           <div>
             <div className="d-flex align-items-center gap-2 mb-2">
-              <span className="fs-3">🎂</span>
               <h2 className="fw-bold mb-0 text-dark">Pastelería Mil Sabores SpA</h2>
             </div>
             <p className="text-muted small mb-0">

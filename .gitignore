@@ -38,5 +38,5 @@ Thumbs.db
 *.tmp
 *.bak
 
-# Bitácoras locales protegidas
+# Bitácoras locales del estudiante protegidas por regla global
 Compendio_soluciones.md

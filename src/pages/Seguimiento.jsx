@@ -3,11 +3,11 @@ import { Container, Card, Row, Col, Form, Button, ProgressBar, Badge, Alert } fr
 import { useAuth } from '../context/AuthContext';
 
 const FASES = [
-  { fase: 1, nombre: 'Pedido Confirmado', icon: '📝', desc: 'Pago verificado y orden ingresada en el sistema de producción.' },
-  { fase: 2, nombre: 'En Preparación', icon: '🥣', desc: 'Nuestros maestros pasteleros están horneando y decorando tu pedido.' },
-  { fase: 3, nombre: 'Control de Calidad', icon: '✨', desc: 'Inspección de dedicatoria y empaque refrigerado para viaje seguro.' },
-  { fase: 4, nombre: 'En Ruta de Despacho', icon: '🚚', desc: 'El repartidor se encuentra en camino con cadena de frío garantizada.' },
-  { fase: 5, nombre: 'Entregado con Éxito', icon: '🎉', desc: 'Pedido entregado en la dirección indicada. ¡Que lo disfruten!' }
+  { fase: 1, nombre: 'Pedido Confirmado', desc: 'Pago verificado y orden ingresada en el sistema de producción.' },
+  { fase: 2, nombre: 'En Preparación', desc: 'Nuestros maestros pasteleros están horneando y decorando tu pedido.' },
+  { fase: 3, nombre: 'Control de Calidad', desc: 'Inspección de dedicatoria y empaque refrigerado para viaje seguro.' },
+  { fase: 4, nombre: 'En Ruta de Despacho', desc: 'El repartidor se encuentra en camino con cadena de frío garantizada.' },
+  { fase: 5, nombre: 'Entregado con Éxito', desc: 'Pedido entregado en la dirección indicada. ¡Que lo disfruten!' }
 ];
 
 const Seguimiento = () => {
@@ -180,7 +180,7 @@ const Seguimiento = () => {
                             : 'text-muted border-light'
                         }`}
                       >
-                        <div className="fs-3 mb-1">{f.icon}</div>
+                        <div className="fs-5 fw-bold mb-1">Paso {f.fase}</div>
                         <small className="fw-bold d-block" style={{ fontSize: '0.75rem' }}>
                           {f.nombre}
                         </small>
@@ -212,7 +212,7 @@ const Seguimiento = () => {
           {esOperadorAutorizado && (
             <Card className="border-warning bg-light shadow-sm p-3 mb-4">
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <h6 className="fw-bold text-dark mb-0">🎮 Panel de Control de Despacho (Operador Acreditado)</h6>
+                <h6 className="fw-bold text-dark mb-0">Panel de Control de Despacho (Operador Acreditado)</h6>
                 <Badge bg="success">Acceso Autorizado</Badge>
               </div>
               <p className="small text-muted mb-3">

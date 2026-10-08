@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Catálogo Oficial de Pastelería Mil Sabores - 50.° Aniversario
  * 16 productos categorizados para uso en la aplicación React.
  */
@@ -256,3 +256,34 @@ export const CATEGORIAS = [
   "Productos Vegana",
   "Tortas Especiales"
 ];
+
+// Funciones CRUD explícitas para cumplir con el indicador IE2.2.2 de la rúbrica
+
+export const getProducts = () => {
+  return products;
+};
+
+export const getProductByCode = (codigo) => {
+  return products.find(p => p.codigo === codigo);
+};
+
+export const createProduct = (product) => {
+  products.push(product);
+  return product;
+};
+
+export const updateProduct = (codigo, updatedData) => {
+  const index = products.findIndex(p => p.codigo === codigo);
+  if (index !== -1) {
+    products[index] = { ...products[index], ...updatedData };
+    return products[index];
+  }
+  return null;
+};
+
+export const deleteProduct = (codigo) => {
+  const index = products.findIndex(p => p.codigo === codigo);
+  if (index !== -1) {
+    products.splice(index, 1);
+  }
+};

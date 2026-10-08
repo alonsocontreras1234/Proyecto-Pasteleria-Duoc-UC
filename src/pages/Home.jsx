@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Form, InputGroup, Button, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { products, CATEGORIAS } from '../data/products';
@@ -48,11 +48,10 @@ const Home = () => {
           <Row className="g-3 align-items-center">
             <Col md={7}>
               <InputGroup size="lg">
-                <InputGroup.Text className="bg-white border-end-0">🔍</InputGroup.Text>
                 <Form.Control
                   type="text"
                   placeholder="Buscar por nombre, ingrediente o receta..."
-                  className="border-start-0 shadow-none"
+                  className="shadow-none"
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                 />
@@ -105,7 +104,7 @@ const Home = () => {
           <Row className="align-items-center g-4">
             <Col lg={7}>
               <Badge bg="info" text="dark" className="mb-3 px-3 py-2 fw-semibold">
-                📜 Hito Histórico • 1995
+                Hito Histórico • 1995
               </Badge>
               <h2 className="fw-bold display-6 mb-3">Nuestra Historia de Tradición y Récord</h2>
               <p className="lead text-primary fw-semibold">

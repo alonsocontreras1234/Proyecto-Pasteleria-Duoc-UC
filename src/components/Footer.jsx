@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ const Footer = () => {
       <Container>
         <Row className="gy-4">
           <Col md={4}>
-            <h5 className="fw-bold mb-3">🎂 Pastelería Mil Sabores</h5>
+            <h5 className="fw-bold mb-3">Pastelería Mil Sabores</h5>
             <p className="text-muted small">
               50 años celebrando momentos inolvidables junto a las familias de Chile. Maestría artesanal,
               ingredientes de excelencia y el compromiso inalterable con la tradición repostera.

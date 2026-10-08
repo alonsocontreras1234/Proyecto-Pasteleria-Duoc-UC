@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Offcanvas, Button, ListGroup, Form, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -32,7 +32,7 @@ const CartDrawer = () => {
     <Offcanvas show={isDrawerOpen} onHide={() => setIsDrawerOpen(false)} placement="end" className="cart-drawer">
       <Offcanvas.Header closeButton className="border-bottom">
         <Offcanvas.Title className="fw-bold d-flex align-items-center gap-2">
-          <span>🛒 Tu Carrito de Compras</span>
+          <span>Tu Carrito de Compras</span>
           <Badge bg="primary" pill>
             {totalItems}
           </Badge>
@@ -42,7 +42,6 @@ const CartDrawer = () => {
       <Offcanvas.Body className="d-flex flex-column p-3">
         {items.length === 0 ? (
           <div className="text-center my-auto py-5">
-            <span style={{ fontSize: '3.5rem' }}>🍰</span>
             <h5 className="mt-3 fw-bold">Tu carrito está vacío</h5>
             <p className="text-muted small">Explora nuestro catálogo del 50.° Aniversario y agrega tus delicias favoritas.</p>
             <Button variant="primary" onClick={() => { setIsDrawerOpen(false); navigate('/catalogo'); }}>

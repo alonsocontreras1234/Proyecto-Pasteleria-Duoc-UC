@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Container, Card, Form, Button, Alert, Row, Col } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -54,7 +54,6 @@ const Registro = () => {
     <Container className="py-4" style={{ maxWidth: '650px' }}>
       <Card className="shadow border-0 p-4 p-md-5">
         <div className="text-center mb-4">
-          <span className="fs-1">🎂</span>
           <h2 className="fw-bold mt-2">Crear Cuenta de Cliente</h2>
           <p className="text-muted small">
             Regístrate en el Club Mil Sabores y accede a promociones por edad y beneficios para la comunidad Duoc UC.

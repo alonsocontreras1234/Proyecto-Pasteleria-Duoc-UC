@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Form, InputGroup, Nav, Badge } from 'react-bootstrap';
 import { products, CATEGORIAS } from '../data/products';
 import ProductCard from '../components/ProductCard';
@@ -31,7 +31,6 @@ const Catalogo = () => {
       {/* BARRA DE BÚSQUEDA */}
       <div className="mb-4">
         <InputGroup size="lg" className="shadow-sm">
-          <InputGroup.Text className="bg-white">🔍</InputGroup.Text>
           <Form.Control
             type="text"
             placeholder="Buscar por nombre, código (ej: TC001) o ingrediente..."
@@ -69,7 +68,6 @@ const Catalogo = () => {
       {/* GRILLA DE PRODUCTOS */}
       {productosFiltrados.length === 0 ? (
         <div className="text-center py-5 my-4 bg-light rounded-4 border">
-          <span style={{ fontSize: '3rem' }}>🧁</span>
           <h4 className="fw-bold mt-2">No se encontraron productos</h4>
           <p className="text-muted">Prueba con otro término de búsqueda o selecciona otra categoría.</p>
         </div>

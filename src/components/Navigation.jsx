@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Navbar, Nav, Container, Badge, Button } from 'react-bootstrap';
 import { NavLink, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -12,7 +12,6 @@ const Navigation = () => {
     <Navbar bg="light" expand="lg" sticky="top" className="shadow-sm py-2 brand-navbar">
       <Container>
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-2">
-          <span className="brand-logo-icon">🎂</span>
           <div>
             <div className="fw-bold text-dark fs-4 brand-title">Mil Sabores</div>
             <small className="text-muted d-block brand-sub">50.° Aniversario (1976 - 2026)</small>
@@ -50,7 +49,7 @@ const Navigation = () => {
               onClick={() => setIsDrawerOpen(true)}
               aria-label="Ver carrito"
             >
-              <span>🛒 Carrito</span>
+              <span>Carrito</span>
               <Badge bg="danger" pill>
                 {totalItems}
               </Badge>

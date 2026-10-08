@@ -34,7 +34,6 @@ const Perfil = () => {
       <Container className="py-5" style={{ maxWidth: '480px' }}>
         <Card className="shadow border-0 p-4">
           <div className="text-center mb-4">
-            <span className="fs-1">🔐</span>
             <h3 className="fw-bold mt-2">Iniciar Sesión</h3>
             <p className="text-muted small">Accede a tus beneficios y al historial de compras de la pastelería.</p>
           </div>
@@ -136,7 +135,6 @@ const Perfil = () => {
                 <div className="d-flex flex-column gap-2 mb-3">
                   {user.beneficios.map((b, idx) => (
                     <div key={idx} className="p-3 bg-light rounded border border-warning d-flex align-items-center gap-2">
-                      <span className="fs-4">⭐</span>
                       <div>
                         <strong>{b}</strong>
                         <small className="text-muted d-block">Beneficio activo para todas tus compras conmemorativas.</small>
@@ -150,7 +148,7 @@ const Perfil = () => {
 
               {user.porcentajeDescuento > 0 && (
                 <div className="alert alert-success mt-3 mb-0">
-                  🎉 Cuentas con un <strong>{(user.porcentajeDescuento * 100).toFixed(0)} % de descuento automático</strong> asignado a tu cuenta.
+                  Cuentas con un <strong>{(user.porcentajeDescuento * 100).toFixed(0)} % de descuento automático</strong> asignado a tu cuenta.
                 </div>
               )}
             </Card.Body>
