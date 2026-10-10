@@ -1,22 +1,16 @@
-# Proyecto-Pasteleria-Duoc-UC
-Evaluacion Parcial 1 HTML sobre una pasteleria
+# React + Vite
 
-<img width="407" height="140" alt="image" src="https://github.com/user-attachments/assets/c045e818-2bcb-44ff-95b6-66b7982fb983" />
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-* #E7C5B1 (Beige / Durazno claro)
-* #C98025 (Ocre / Mostaza tostado)
-* #C64B0D (Naranja teja / Terracota)
-* #A62522 (Rojo ladrillo / Carmesí oscuro)
-* #5A0609 (Burdeos / Vino tinto profundo)
+Currently, two official plugins are available:
 
-#GUIA COMENTARIOS GITHUB
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-  Estándar de seguimiento sobre los comentarios en GitHub que tenemos que seguir
+## React Compiler
 
-  * feat – agregaste una funcionalidad nueva
-  * fix – corregiste un error o bug
-  * docs – cambios solo en documentación
-  * style – formato del código (espacios, indentación), sin afectar la lógica
-  * refactor – reordenaste u organizaste código sin cambiar su comportamiento
-  * test – agregaste o corregiste pruebas
-  * chore – tareas menores (configuración, dependencias, etc.)
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
