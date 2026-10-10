@@ -23,10 +23,10 @@ Evaluacion Parcial 1 HTML sobre una pasteleria
 
 #GUIA PARA USAR REACT DESDE VISUAL
 
-  *Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass : Desbloquea temporalmente la terminal actual para permitir la ejecución de scripts (como npm, vite o vitest) sin que Windows los bloquee por restricciones de seguridad.
-  *npm install : Instala todas las dependencias requeridas en el archivo package.json (React, Vite, Vitest, Testing Library, etc.) dentro de la carpeta node_modules.
-  *npm run dev : Inicia el servidor local para ver y probar la página web en tu navegador en tiempo real.
-  *npm test : Ejecuta las pruebas automatizadas (con Vitest) para verificar que los cálculos, la validación del RUT y los componentes de la aplicación funcionen correctamente sin errores.
+  * Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass : Desbloquea temporalmente la terminal actual para permitir la ejecución de scripts (como npm, vite o vitest) sin que Windows los bloquee por restricciones de seguridad.
+  * npm install : Instala todas las dependencias requeridas en el archivo package.json (React, Vite, Vitest, Testing Library, etc.) dentro de la carpeta node_modules.
+  * npm run dev : Inicia el servidor local para ver y probar la página web en tu navegador en tiempo real.
+  * npm test : Ejecuta las pruebas automatizadas (con Vitest) para verificar que los cálculos, la validación del RUT y los componentes de la aplicación funcionen correctamente sin errores.
 
   Para abrir el proyecto en un navegador web se debe copiar la url que se muestra en la terminal.
   <img width="513" height="205" alt="image" src="https://github.com/user-attachments/assets/340ee12d-b279-4faa-856c-94b6e67354b5" />
