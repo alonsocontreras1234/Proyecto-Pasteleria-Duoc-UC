@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { registrarUsuario, iniciarSesion, actualizarUsuario } from '../data/db';
-import { obtenerPedidosPorEmail } from '../data/pedidosDB';
+import { registrarUsuario, iniciarSesion, actualizarUsuario } from '../utils/db';
 
 export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
   const [modo, setModo] = useState('registro'); // 'registro' | 'login'
@@ -92,20 +91,6 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
   // VISTA DE PERFIL AUTENTICADO (CUANDO TIENE UNA CUENTA REGISTRADA)
   // =============================================================
   if (usuario && !usuario.esInvitado) {
-    // Pedidos de este usuario, leídos desde pedidosDB.js
-    const misPedidos = obtenerPedidosPorEmail(usuario.email);
-    const pedidosEnCamino = misPedidos.filter(p => p.etapa < 4);
-
-    // Tarjeta de un pedido (se usa en "Pedidos en Camino" y en "Historial")
-    const tarjetaPedido = (p) => (
-      <div key={p.codigoSeguimiento} className="box-vacio-perfil" style={{ textAlign: 'left', marginBottom: '12px' }}>
-        <strong>Boleta N.º {String(p.folio).padStart(6, '0')}</strong> · Código: <strong>{p.codigoSeguimiento}</strong>
-        <div>Fecha: {new Date(p.fecha).toLocaleDateString('es-CL')} · Estado: {p.estadoNombre}</div>
-        <div>Productos: {p.items.map(it => `${it.cantidad}x ${it.nombre}`).join(', ')}</div>
-        <div>Total pagado: <strong>${p.totalPagar.toLocaleString('es-CL')}</strong></div>
-      </div>
-    );
-
     return (
       <section className="main-container">
         {/* ENCABEZADO PRINCIPAL DE LA SECCIÓN */}
@@ -156,7 +141,7 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
                 onClick={() => setPestana('pedidos')}
               >
                 <span>🚚 Pedidos en Camino</span>
-                <span className="badge-tab-num">{pedidosEnCamino.length}</span>
+                <span className="badge-tab-num">0</span>
               </button>
 
               <button
@@ -278,13 +263,9 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
               <div>
                 <h3 className="subtitulo-seccion-serif">Pedidos en Camino</h3>
                 <p className="desc-seccion-text">Aquí verás los pedidos que actualmente están siendo preparados o enviados.</p>
-                {pedidosEnCamino.length === 0 ? (
-                  <div className="box-vacio-perfil">
-                    No tienes pedidos activos en tránsito en este momento.
-                  </div>
-                ) : (
-                  pedidosEnCamino.map(tarjetaPedido)
-                )}
+                <div className="box-vacio-perfil">
+                  No tienes pedidos activos en tránsito en este momento.
+                </div>
               </div>
             )}
 
@@ -292,13 +273,9 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
               <div>
                 <h3 className="subtitulo-seccion-serif">Historial de Compras</h3>
                 <p className="desc-seccion-text">Revisa las compras y boletas que has realizado previamente.</p>
-                {misPedidos.length === 0 ? (
-                  <div className="box-vacio-perfil">
-                    Aún no registras compras pasadas en tu cuenta.
-                  </div>
-                ) : (
-                  misPedidos.map(tarjetaPedido)
-                )}
+                <div className="box-vacio-perfil">
+                  Aún no registras compras pasadas en tu cuenta.
+                </div>
               </div>
             )}
           </div>

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { obtenerUsuarioPorEmail } from '../data/db';
 
 export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }) => {
   const [nombre, setNombre] = useState(usuario?.nombre || 'Magdalena Zúñiga');
@@ -14,21 +13,10 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
     usuario?.porcentajeDescuento ? `Descuento activo del ${usuario.porcentajeDescuento} % por perfil` : ''
   );
 
-  // Torta gratis de cumpleaños (estudiantes Duoc UC): se canjea una sola vez por año
-  // Se revisa en la base de datos si la cuenta ya la canjeó este año
-  const anioActual = new Date().getFullYear();
-  const cuentaGuardada = usuario?.email ? obtenerUsuarioPorEmail(usuario.email) : null;
-  const yaCanjeoTorta = cuentaGuardada?.tortaCanjeadaAnio === anioActual;
-  const tortasEnCarrito = carrito.filter((item) => item.nombre.toLowerCase().includes('torta'));
-  const puedeCanjearTorta = !!usuario?.tortaGratisDuoc && !yaCanjeoTorta && tortasEnCarrito.length > 0;
-  const [canjearTorta, setCanjearTorta] = useState(false);
-
   const subtotal = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
   const costoDespacho = tipoEntrega === 'despacho' ? 2500 : 0;
-  // Si canjea la torta, se descuenta 1 unidad de la torta de menor precio del carrito
-  const descuentoTorta = puedeCanjearTorta && canjearTorta ? Math.min(...tortasEnCarrito.map((item) => item.precio)) : 0;
-  const descuentoMonto = Math.round(((subtotal - descuentoTorta) * descuentoPorcentaje) / 100);
-  const totalPagar = subtotal - descuentoTorta - descuentoMonto + costoDespacho;
+  const descuentoMonto = Math.round((subtotal * descuentoPorcentaje) / 100);
+  const totalPagar = subtotal - descuentoMonto + costoDespacho;
   const montoNeto = Math.round(totalPagar / 1.19);
   const iva = totalPagar - montoNeto;
 
@@ -54,7 +42,6 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
       items: carrito,
       subtotal,
       descuentoMonto,
-      descuentoTorta,
       porcentajeDescuento: descuentoPorcentaje,
       costoDespacho,
       montoNeto,
@@ -159,32 +146,17 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
 
             <div className="summary-items-list">
               {carrito.map((item) => (
-                <div key={`${item.id}-${item.dedicatoria || ''}`} className="summary-item-row">
-                  <span>
-                    {item.nombre} × {item.cantidad}
-                    {item.dedicatoria && <em style={{ display: 'block', fontSize: '0.8rem' }}>Dedicatoria: "{item.dedicatoria}"</em>}
-                  </span>
+                <div key={item.id} className="summary-item-row">
+                  <span>{item.nombre} × {item.cantidad}</span>
                   <strong>${(item.precio * item.cantidad).toLocaleString('es-CL')}</strong>
                 </div>
               ))}
             </div>
 
-            {/* Beneficio Duoc: torta gratis de cumpleaños (una vez por año) */}
+            {/* Beneficio Duoc */}
             {usuario?.tortaGratisDuoc && (
               <div style={{ backgroundColor: '#eafaf1', color: '#155724', padding: '10px', borderRadius: '6px', fontSize: '12px', margin: '12px 0', border: '1px solid #c3e6cb' }}>
-                🎂 <strong>Beneficio Duoc UC:</strong>{' '}
-                {yaCanjeoTorta && 'Ya canjeaste tu torta gratis de cumpleaños este año.'}
-                {!yaCanjeoTorta && tortasEnCarrito.length === 0 && 'Tienes una torta gratis de cumpleaños. Agrega una torta al carrito para canjearla.'}
-                {puedeCanjearTorta && (
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={canjearTorta}
-                      onChange={(e) => setCanjearTorta(e.target.checked)}
-                    />
-                    Canjear mi torta gratis (se descuenta la torta de menor precio)
-                  </label>
-                )}
+                🎂 <strong>Beneficio Duoc UC Activo:</strong> ¡Incluye torta gratis de cumpleaños para estudiantes institucionales!
               </div>
             )}
 
@@ -223,13 +195,6 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
                 <span>Subtotal Productos:</span>
                 <strong>${subtotal.toLocaleString('es-CL')}</strong>
               </div>
-
-              {descuentoTorta > 0 && (
-                <div className="breakdown-row" style={{ color: '#27ae60' }}>
-                  <span>Torta gratis Duoc UC:</span>
-                  <strong>-${descuentoTorta.toLocaleString('es-CL')}</strong>
-                </div>
-              )}
 
               {descuentoMonto > 0 && (
                 <div className="breakdown-row" style={{ color: '#27ae60' }}>
