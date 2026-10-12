@@ -125,7 +125,7 @@ export default function App() {
         )}
 
         {vistaActual === 'seguimiento' && (
-          <Seguimiento />
+          <Seguimiento ultimoPedido={ultimoPedido} />
         )}
 
         {vistaActual === 'perfil' && (

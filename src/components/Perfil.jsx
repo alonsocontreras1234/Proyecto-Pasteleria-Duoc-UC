@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { registrarUsuario, iniciarSesion, actualizarUsuario } from '../utils/db';
 
 export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
   const [modo, setModo] = useState('registro'); // 'registro' | 'login'
@@ -10,6 +11,11 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [codigoPromo, setCodigoPromo] = useState('');
+
+  // Mensajes de retroalimentación
+  const [errorMensaje, setErrorMensaje] = useState('');
+  const [mensajeExito, setMensajeExito] = useState('');
 
   // Estados para Edición de Información Personal
   const [editNombre, setEditNombre] = useState(usuario?.nombre || '');
@@ -20,16 +26,65 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
 
   const handleSubmitAuth = (e) => {
     e.preventDefault();
-    if (!email || !password) return;
+    setErrorMensaje('');
+    setMensajeExito('');
 
-    onLogin({
-      nombre: modo === 'registro' ? (nombre || 'Usuario') : email.split('@')[0],
-      email: email,
-      rut: rut || '19011022K',
-      fechaNacimiento: fechaNacimiento,
-      esDuoc: email.toLowerCase().endsWith('@duocuc.cl'),
-      esInvitado: false
-    });
+    if (modo === 'registro') {
+      const res = registrarUsuario({
+        rut,
+        nombre,
+        email,
+        password,
+        fechaNacimiento,
+        codigoPromo
+      });
+
+      if (!res.ok) {
+        setErrorMensaje(res.error);
+        return;
+      }
+
+      onLogin(res.usuario);
+    } else {
+      const res = iniciarSesion(email, password);
+      if (!res.ok) {
+        setErrorMensaje(res.error);
+        return;
+      }
+
+      onLogin(res.usuario);
+    }
+  };
+
+  const handleGuardarDatos = (e) => {
+    e.preventDefault();
+    setErrorMensaje('');
+    setMensajeExito('');
+
+    const cambios = {
+      nombre: editNombre,
+      telefono: editTelefono,
+      direccion: editDireccion
+    };
+
+    if (passNueva) {
+      if (passNueva.length < 4) {
+        setErrorMensaje('La nueva contraseña debe tener al menos 4 caracteres.');
+        return;
+      }
+      cambios.password = passNueva;
+    }
+
+    const res = actualizarUsuario(usuario.email, cambios);
+    if (!res.ok) {
+      setErrorMensaje(res.error);
+      return;
+    }
+
+    setMensajeExito('Datos actualizados correctamente.');
+    onLogin(res.usuario);
+    setPassActual('');
+    setPassNueva('');
   };
 
   // =============================================================
@@ -55,8 +110,23 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
             <h3 className="user-nombre-script">{usuario.nombre}</h3>
             <span className="badge-cliente-aniversario">Cliente Aniversario</span>
             <p className="user-email-text">{usuario.email}</p>
+            <p style={{ fontSize: '12px', color: '#777', margin: '4px 0' }}>RUT: {usuario.rut}</p>
 
-            <nav className="perfil-tabs-list">
+            {/* Listado de Beneficios y Descuentos Activos */}
+            {usuario.beneficios && usuario.beneficios.length > 0 && (
+              <div style={{ marginTop: '12px', padding: '10px', backgroundColor: '#eafaf1', borderRadius: '6px', textAlign: 'left', border: '1px solid #c3e6cb' }}>
+                <strong style={{ color: '#1e8449', fontSize: '12px', display: 'block', marginBottom: '4px' }}>
+                  🎉 Beneficios Activos:
+                </strong>
+                <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '11px', color: '#155724' }}>
+                  {usuario.beneficios.map((b, i) => (
+                    <li key={i}>{b}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <nav className="perfil-tabs-list" style={{ marginTop: '16px' }}>
               <button
                 type="button"
                 className={`btn-perfil-tab ${pestana === 'datos' ? 'active' : ''}`}
@@ -99,19 +169,32 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
                   Actualiza tus datos de contacto y clave de acceso.
                 </p>
 
-                <form className="form-info-personal" onSubmit={(e) => e.preventDefault()}>
+                {errorMensaje && (
+                  <div style={{ color: '#721c24', backgroundColor: '#f8d7da', padding: '10px', borderRadius: '4px', marginBottom: '14px', border: '1px solid #f5c6cb' }}>
+                    ⚠️ {errorMensaje}
+                  </div>
+                )}
+
+                {mensajeExito && (
+                  <div style={{ color: '#155724', backgroundColor: '#d4edda', padding: '10px', borderRadius: '4px', marginBottom: '14px', border: '1px solid #c3e6cb' }}>
+                    ✅ {mensajeExito}
+                  </div>
+                )}
+
+                <form className="form-info-personal" onSubmit={handleGuardarDatos}>
                   <div className="form-row-2col">
                     <div className="form-group-exact">
                       <label>Nombre Completo *</label>
                       <input
                         type="text"
-                        value={editNombre || usuario.nombre}
+                        value={editNombre}
                         onChange={(e) => setEditNombre(e.target.value)}
+                        required
                       />
                     </div>
 
                     <div className="form-group-exact">
-                      <label>Teléfono de Contacto *</label>
+                      <label>Teléfono de Contacto</label>
                       <input
                         type="tel"
                         value={editTelefono}
@@ -220,14 +303,20 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
           </p>
         </div>
 
+        {errorMensaje && (
+          <div style={{ color: '#721c24', backgroundColor: '#f8d7da', padding: '10px 14px', borderRadius: '4px', marginBottom: '16px', border: '1px solid #f5c6cb', fontSize: '13px' }}>
+            ⚠️ {errorMensaje}
+          </div>
+        )}
+
         <form className="auth-form-exact" onSubmit={handleSubmitAuth}>
           {modo === 'registro' && (
             <>
               <div className="form-group-exact">
-                <label>RUT (Sin puntos ni guión)</label>
+                <label>RUT (Con o sin puntos y guión) *</label>
                 <input 
                   type="text" 
-                  placeholder="Ej: 19011022K" 
+                  placeholder="Ej: 22.163.627-9 o 19876543-0" 
                   value={rut}
                   onChange={(e) => setRut(e.target.value)}
                   required 
@@ -235,7 +324,7 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
               </div>
 
               <div className="form-group-exact">
-                <label>NOMBRE COMPLETO</label>
+                <label>NOMBRE COMPLETO *</label>
                 <input 
                   type="text" 
                   placeholder="Tu nombre y apellido" 
@@ -248,7 +337,7 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
           )}
 
           <div className="form-group-exact">
-            <label>E-MAIL</label>
+            <label>E-MAIL *</label>
             <input 
               type="email" 
               placeholder="ejemplo@duocuc.cl" 
@@ -259,7 +348,7 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
           </div>
 
           <div className="form-group-exact">
-            <label>CONTRASENA</label>
+            <label>CONTRASEÑA *</label>
             <input 
               type="password" 
               placeholder="••••••••" 
@@ -270,15 +359,30 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
           </div>
 
           {modo === 'registro' && (
-            <div className="form-group-exact">
-              <label>FECHA DE NACIMIENTO</label>
-              <input 
-                type="date" 
-                value={fechaNacimiento}
-                onChange={(e) => setFechaNacimiento(e.target.value)}
-                required 
-              />
-            </div>
+            <>
+              <div className="form-group-exact">
+                <label>FECHA DE NACIMIENTO *</label>
+                <input 
+                  type="date" 
+                  value={fechaNacimiento}
+                  onChange={(e) => setFechaNacimiento(e.target.value)}
+                  required 
+                />
+              </div>
+
+              <div className="form-group-exact">
+                <label>CÓDIGO PROMOCIONAL (OPCIONAL)</label>
+                <input 
+                  type="text" 
+                  placeholder="Ej: FELICES50" 
+                  value={codigoPromo}
+                  onChange={(e) => setCodigoPromo(e.target.value)}
+                />
+                <span className="form-hint-sub">
+                  Ingresa "FELICES50" para obtener un 10 % de descuento vitalicio.
+                </span>
+              </div>
+            </>
           )}
 
           <button type="submit" className="btn-crear-cuenta">
@@ -300,7 +404,10 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
           <button
             type="button"
             className="btn-iniciar-sesion-outline"
-            onClick={() => setModo(modo === 'registro' ? 'login' : 'registro')}
+            onClick={() => {
+              setModo(modo === 'registro' ? 'login' : 'registro');
+              setErrorMensaje('');
+            }}
           >
             {modo === 'registro' ? 'INICIAR SESIÓN' : 'CREAR CUENTA'}
           </button>

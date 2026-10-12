@@ -18,7 +18,7 @@ describe('Pruebas de Componente - Catálogo y Modal', () => {
     
     fireEvent.click(botonesDetalle[0]);
 
-    // Verificar que el modal desplegó el texto de la receta
-    expect(screen.getByText(/Receta/i)).toBeInTheDocument();
+    // Verificar que el modal desplegó el encabezado de la receta
+    expect(screen.getByRole('heading', { name: /Receta/i })).toBeInTheDocument();
   });
 });

@@ -1,22 +1,34 @@
 import React, { useState } from 'react';
 
-export const Seguimiento = () => {
-  const [codigo, setCodigo] = useState('');
-  const [pedido, setPedido] = useState(null);
+export const Seguimiento = ({ ultimoPedido }) => {
+  const [codigo, setCodigo] = useState(ultimoPedido?.codigoSeguimiento || '');
+  const [pedido, setPedido] = useState(() => {
+    if (ultimoPedido) {
+      return {
+        id: ultimoPedido.codigoSeguimiento,
+        etapa: 2, // 1: Recibido, 2: En Preparación, 3: En Camino, 4: Entregado
+        estadoNombre: 'En Preparación 👨‍🍳',
+        estimado: 'Hoy a las 18:30 hrs.',
+        direccion: ultimoPedido.cliente?.direccion || 'Av. Providencia 1234, Depto 502, Providencia, Santiago',
+        items: ultimoPedido.items?.map(it => `${it.cantidad}x ${it.nombre}`) || ['1x Torta Cuadrada de Chocolate']
+      };
+    }
+    return null;
+  });
 
   const handleBuscar = (e) => {
     e.preventDefault();
     
     // Si no escribe nada o presiona Rastrear, genera el estado con el código ej. PMS-2026-8942
-    const codigoFinal = codigo.trim() ? codigo.toUpperCase() : 'PMS-2026-8942';
+    const codigoFinal = codigo.trim() ? codigo.toUpperCase() : (ultimoPedido?.codigoSeguimiento || 'PMS-2026-8942');
 
     setPedido({
       id: codigoFinal,
       etapa: 2, // 1: Recibido, 2: En Preparación, 3: En Camino, 4: Entregado
       estadoNombre: 'En Preparación 👨‍🍳',
       estimado: 'Hoy a las 18:30 hrs.',
-      direccion: 'Av. Providencia 1234, Depto 502, Providencia, Santiago',
-      items: ['1x Torta Cuadrada de Chocolate', '1x Mousse de Chocolate']
+      direccion: ultimoPedido?.cliente?.direccion || 'Av. Providencia 1234, Depto 502, Providencia, Santiago',
+      items: ultimoPedido?.items?.map(it => `${it.cantidad}x ${it.nombre}`) || ['1x Torta Cuadrada de Chocolate', '1x Mousse de Chocolate']
     });
   };
 
