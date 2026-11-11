@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Utilidades de validación y cálculo de beneficios para Pastelería Mil Sabores
  */
 
@@ -45,8 +45,22 @@ export const validarRut = (runStr) => {
  */
 export const validarEmail = (email) => {
   if (!email || typeof email !== 'string') return false;
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email.trim());
+  const limpio = email.trim().toLowerCase();
+
+  // 1. Patrón sintáctico estricto (usuario de mínimo 3 caracteres, sin puntos consecutivos)
+  const regex = /^(?!.*\.\.)[a-zA-Z0-9][a-zA-Z0-9._%+-]{2,63}@[a-zA-Z0-9](?:[a-zA-Z0-9-]{1,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,6})+$/;
+  if (!regex.test(limpio)) return false;
+
+  // 2. Descomposición de segmentos de dominio: cada etiqueta debe tener al menos 2 caracteres
+  const [, dominio] = limpio.split('@');
+  if (!dominio) return false;
+
+  const partes = dominio.split('.');
+  if (partes.some((parte) => parte.length < 2)) {
+    return false; // Bloquea segmentos de 1 letra como 'j' en 'j.j.cl'
+  }
+
+  return true;
 };
 
 /**

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { registrarUsuario, iniciarSesion, actualizarUsuario } from '../data/db';
+import usuarioService from '../services/UsuarioService';
+import { actualizarUsuario } from '../data/db';
 import { obtenerPedidosPorEmail } from '../data/pedidosDB';
+import { calcularBeneficios } from '../utils/validations';
 
 export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
   const [modo, setModo] = useState('registro'); // 'registro' | 'login'
@@ -25,19 +27,64 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
   const [passActual, setPassActual] = useState('');
   const [passNueva, setPassNueva] = useState('');
 
-  const handleSubmitAuth = (e) => {
+  const enriquecerConBeneficios = async (usuarioBase, cuponOpcional = '') => {
+    const local = calcularBeneficios({
+      fechaNacimiento: usuarioBase?.fechaNacimiento || fechaNacimiento,
+      email: usuarioBase?.email || email,
+      codigoPromo: cuponOpcional
+    });
+
+    if (usuarioBase?.id) {
+      const remoto = await usuarioService.obtenerBeneficios(usuarioBase.id, cuponOpcional);
+      if (remoto) {
+        const porcentajeDescuento = remoto.descuentoPorcentaje ?? local.porcentajeDescuento;
+        const tortaGratisDuoc =
+          typeof remoto.beneficioDuocCumpleanos === 'string' &&
+          remoto.beneficioDuocCumpleanos.toLowerCase().includes('gratis');
+        const beneficios = [];
+        if (porcentajeDescuento > 0 && remoto.motivoDescuento) {
+          beneficios.push(remoto.motivoDescuento);
+        }
+        if (tortaGratisDuoc) {
+          beneficios.push(remoto.beneficioDuocCumpleanos);
+        }
+        return {
+          ...usuarioBase,
+          rol: (usuarioBase.rol || 'cliente').toLowerCase(),
+          porcentajeDescuento,
+          tortaGratisDuoc,
+          beneficios
+        };
+      }
+    }
+
+    return {
+      ...usuarioBase,
+      rol: (usuarioBase?.rol || 'cliente').toLowerCase(),
+      porcentajeDescuento: usuarioBase?.porcentajeDescuento ?? local.porcentajeDescuento,
+      tortaGratisDuoc: usuarioBase?.tortaGratisDuoc ?? local.tortaGratisDuoc,
+      beneficios: usuarioBase?.beneficios ?? local.detalles
+    };
+  };
+
+  const handleSubmitAuth = async (e) => {
     e.preventDefault();
     setErrorMensaje('');
     setMensajeExito('');
 
     if (modo === 'registro') {
-      const res = registrarUsuario({
+      const partesNombre = nombre.trim().split(' ');
+      const primerNombre = partesNombre[0] || 'Usuario';
+      const apellidoIngresado = partesNombre.slice(1).join(' ') || 'SinApellido';
+
+      const res = await usuarioService.registrar({
         rut,
-        nombre,
+        nombre: primerNombre,
+        apellido: apellidoIngresado,
         email,
         password,
         fechaNacimiento,
-        codigoPromo
+        telefono: '+56900000000'
       });
 
       if (!res.ok) {
@@ -45,52 +92,70 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
         return;
       }
 
-      onLogin(res.usuario);
+      // Emitir sesión con token JWT si el backend está disponible
+      const loginAuto = await usuarioService.login(email, password);
+      const usuarioBase = loginAuto.ok ? loginAuto.usuario : res.usuario;
+      const usuarioFinal = await enriquecerConBeneficios(usuarioBase, codigoPromo);
+      onLogin(usuarioFinal);
     } else {
-      const res = iniciarSesion(email, password);
+      const res = await usuarioService.login(email, password);
       if (!res.ok) {
         setErrorMensaje(res.error);
         return;
       }
-
-      onLogin(res.usuario);
+      const usuarioFinal = await enriquecerConBeneficios(res.usuario, '');
+      onLogin(usuarioFinal);
     }
   };
 
-  const handleGuardarDatos = (e) => {
+  const handleGuardarDatos = async (e) => {
     e.preventDefault();
     setErrorMensaje('');
     setMensajeExito('');
 
+    const partesNombre = editNombre.trim().split(' ');
+    const primerNombre = partesNombre[0] || usuario?.nombre || 'Usuario';
+    const apellidoEditado =
+      partesNombre.length > 1 ? partesNombre.slice(1).join(' ') : (usuario?.apellido || 'SinApellido');
+
     const cambios = {
-      nombre: editNombre,
+      nombre: primerNombre,
+      apellido: apellidoEditado,
       telefono: editTelefono,
       direccion: editDireccion
     };
 
     if (passNueva) {
-      if (passNueva.length < 4) {
-        setErrorMensaje('La nueva contraseña debe tener al menos 4 caracteres.');
+      if (passNueva.length < 6) {
+        setErrorMensaje('La nueva contraseña debe tener al menos 6 caracteres.');
         return;
       }
       cambios.password = passNueva;
     }
 
-    const res = actualizarUsuario(usuario.email, cambios);
-    if (!res.ok) {
-      setErrorMensaje(res.error);
-      return;
+    if (usuario?.id) {
+      const res = await usuarioService.actualizar(usuario.id, cambios);
+      if (!res.ok) {
+        setErrorMensaje(res.error);
+        return;
+      }
+      setMensajeExito('Datos actualizados correctamente.');
+      onLogin({ ...usuario, ...res.usuario, direccion: editDireccion, rol: (res.usuario.rol || usuario.rol || 'cliente').toLowerCase() });
+    } else {
+      const res = actualizarUsuario(usuario.email, { ...cambios, nombre: editNombre });
+      if (!res.ok) {
+        setErrorMensaje(res.error);
+        return;
+      }
+      setMensajeExito('Datos actualizados correctamente.');
+      onLogin(res.usuario);
     }
 
-    setMensajeExito('Datos actualizados correctamente.');
-    onLogin(res.usuario);
     setPassActual('');
     setPassNueva('');
   };
 
-  // =============================================================
   // VISTA DE PERFIL AUTENTICADO (CUANDO TIENE UNA CUENTA REGISTRADA)
-  // =============================================================
   if (usuario && !usuario.esInvitado) {
     // Pedidos de este usuario, leídos desde pedidosDB.js
     const misPedidos = obtenerPedidosPorEmail(usuario.email);
@@ -170,7 +235,14 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
 
             <hr className="divider-sidebar-dotted" />
 
-            <button type="button" className="btn-cerrar-sesion-link" onClick={onLogout}>
+            <button
+              type="button"
+              className="btn-cerrar-sesion-link"
+              onClick={() => {
+                usuarioService.logout();
+                onLogout();
+              }}
+            >
               🚪 Cerrar Sesión
             </button>
           </div>

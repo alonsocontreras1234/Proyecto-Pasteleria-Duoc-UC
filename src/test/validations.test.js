@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+﻿import { describe, it, expect } from 'vitest';
 import { validarRut, validarEmail, calcularBeneficios } from '../utils/validations';
 
 describe('Pruebas Unitarias - Módulo de Validaciones', () => {
@@ -32,6 +32,9 @@ describe('Pruebas Unitarias - Módulo de Validaciones', () => {
     expect(validarEmail('f.barra@alumnos.duoc.cl')).toBe(true);
     expect(validarEmail('correo-invalido@')).toBe(false);
     expect(validarEmail('sin_arroba.com')).toBe(false);
+    expect(validarEmail('f@j.j.cl')).toBe(false);
+    expect(validarEmail('a@b.c')).toBe(false);
+    expect(validarEmail('usuario@j.cl')).toBe(false);
   });
 
   it('Debe calcular beneficio de 50% de descuento para mayores de 50 años', () => {
