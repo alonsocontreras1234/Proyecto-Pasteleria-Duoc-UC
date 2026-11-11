@@ -1520,6 +1520,26 @@ footer, .footer {
   margin-top: 20px;
 }
 
+/* Buscador y filtros del catálogo */
+.filtros-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.buscador-input {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.botones-filtros-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
 /* Botones de Filtro */
 .btn-filtro {
   background: #fdfaf6;
