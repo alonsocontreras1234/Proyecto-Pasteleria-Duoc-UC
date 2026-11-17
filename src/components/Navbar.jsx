@@ -13,7 +13,7 @@ export const Navbar = ({ usuario, carritoCount, onOpenCarrito, vistaActual, setV
         >
           <div className="brand-box">
             <h1 className="brand-logo-text">Mil Sabores</h1>
-            <span className="brand-subtext">50 ANIVERSARIO</span>
+            <span className="brand-subtext">50.° ANIVERSARIO</span>
           </div>
         </a>
 

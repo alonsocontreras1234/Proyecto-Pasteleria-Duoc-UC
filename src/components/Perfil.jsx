@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import usuarioService from '../services/UsuarioService';
 import { actualizarUsuario } from '../data/db';
 import { obtenerPedidosPorEmail } from '../data/pedidosDB';
-import { calcularBeneficios } from '../utils/validations';
 
 export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
   const [modo, setModo] = useState('registro'); // 'registro' | 'login'
@@ -26,46 +25,6 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
   const [editDireccion, setEditDireccion] = useState(usuario?.direccion || '');
   const [passActual, setPassActual] = useState('');
   const [passNueva, setPassNueva] = useState('');
-
-  const enriquecerConBeneficios = async (usuarioBase, cuponOpcional = '') => {
-    const local = calcularBeneficios({
-      fechaNacimiento: usuarioBase?.fechaNacimiento || fechaNacimiento,
-      email: usuarioBase?.email || email,
-      codigoPromo: cuponOpcional
-    });
-
-    if (usuarioBase?.id) {
-      const remoto = await usuarioService.obtenerBeneficios(usuarioBase.id, cuponOpcional);
-      if (remoto) {
-        const porcentajeDescuento = remoto.descuentoPorcentaje ?? local.porcentajeDescuento;
-        const tortaGratisDuoc =
-          typeof remoto.beneficioDuocCumpleanos === 'string' &&
-          remoto.beneficioDuocCumpleanos.toLowerCase().includes('gratis');
-        const beneficios = [];
-        if (porcentajeDescuento > 0 && remoto.motivoDescuento) {
-          beneficios.push(remoto.motivoDescuento);
-        }
-        if (tortaGratisDuoc) {
-          beneficios.push(remoto.beneficioDuocCumpleanos);
-        }
-        return {
-          ...usuarioBase,
-          rol: (usuarioBase.rol || 'cliente').toLowerCase(),
-          porcentajeDescuento,
-          tortaGratisDuoc,
-          beneficios
-        };
-      }
-    }
-
-    return {
-      ...usuarioBase,
-      rol: (usuarioBase?.rol || 'cliente').toLowerCase(),
-      porcentajeDescuento: usuarioBase?.porcentajeDescuento ?? local.porcentajeDescuento,
-      tortaGratisDuoc: usuarioBase?.tortaGratisDuoc ?? local.tortaGratisDuoc,
-      beneficios: usuarioBase?.beneficios ?? local.detalles
-    };
-  };
 
   const handleSubmitAuth = async (e) => {
     e.preventDefault();
@@ -91,20 +50,14 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
         setErrorMensaje(res.error);
         return;
       }
-
-      // Emitir sesión con token JWT si el backend está disponible
-      const loginAuto = await usuarioService.login(email, password);
-      const usuarioBase = loginAuto.ok ? loginAuto.usuario : res.usuario;
-      const usuarioFinal = await enriquecerConBeneficios(usuarioBase, codigoPromo);
-      onLogin(usuarioFinal);
+      onLogin(res.usuario);
     } else {
       const res = await usuarioService.login(email, password);
       if (!res.ok) {
         setErrorMensaje(res.error);
         return;
       }
-      const usuarioFinal = await enriquecerConBeneficios(res.usuario, '');
-      onLogin(usuarioFinal);
+      onLogin(res.usuario);
     }
   };
 
@@ -113,14 +66,8 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
     setErrorMensaje('');
     setMensajeExito('');
 
-    const partesNombre = editNombre.trim().split(' ');
-    const primerNombre = partesNombre[0] || usuario?.nombre || 'Usuario';
-    const apellidoEditado =
-      partesNombre.length > 1 ? partesNombre.slice(1).join(' ') : (usuario?.apellido || 'SinApellido');
-
     const cambios = {
-      nombre: primerNombre,
-      apellido: apellidoEditado,
+      nombre: editNombre,
       telefono: editTelefono,
       direccion: editDireccion
     };
@@ -140,9 +87,9 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
         return;
       }
       setMensajeExito('Datos actualizados correctamente.');
-      onLogin({ ...usuario, ...res.usuario, direccion: editDireccion, rol: (res.usuario.rol || usuario.rol || 'cliente').toLowerCase() });
+      onLogin({ ...usuario, ...res.usuario });
     } else {
-      const res = actualizarUsuario(usuario.email, { ...cambios, nombre: editNombre });
+      const res = actualizarUsuario(usuario.email, cambios);
       if (!res.ok) {
         setErrorMensaje(res.error);
         return;
