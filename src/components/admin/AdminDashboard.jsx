@@ -1,17 +1,38 @@
+import { useEffect, useState } from 'react';
 import { Row, Col, Card, Table, Button, Badge } from 'react-bootstrap';
-import { obtenerProductos } from '../../data/productosDB';
-import { obtenerUsuarios } from '../../data/db';
-import { obtenerPedidos } from '../../data/pedidosDB';
+import { obtenerProductos as obtenerProductosLocales } from '../../data/productosDB';
+import { obtenerUsuarios as obtenerUsuariosLocales } from '../../data/db';
+import { obtenerPedidos as obtenerPedidosLocales } from '../../data/pedidosDB';
+import { obtenerProductos } from '../../services/ProductoService';
+import usuarioService from '../../services/UsuarioService';
+import { obtenerPedidos } from '../../services/PedidoService';
 
 // Formato de precio chileno: 45000 → "$45.000"
 const clp = (monto) => `$${Number(monto || 0).toLocaleString('es-CL')}`;
 
-//Dashboard: resumen general de la tienda y los últimos pedidos
+// Dashboard: resumen general de la tienda y los últimos pedidos
 export const AdminDashboard = ({ onIrA }) => {
-  // Datos leídos desde los archivos de la carpeta data
-  const productos = obtenerProductos();
-  const usuarios = obtenerUsuarios();
-  const pedidos = obtenerPedidos();
+  const [productos, setProductos] = useState(() => obtenerProductosLocales());
+  const [usuarios, setUsuarios] = useState(() => obtenerUsuariosLocales());
+  const [pedidos, setPedidos] = useState(() => obtenerPedidosLocales());
+
+  useEffect(() => {
+    let activo = true;
+    obtenerProductos().then((lista) => {
+      if (activo && Array.isArray(lista)) setProductos(lista);
+    });
+    obtenerPedidos().then((lista) => {
+      if (activo && Array.isArray(lista)) setPedidos(lista);
+    });
+    if (localStorage.getItem('token_mil_sabores')) {
+      usuarioService.obtenerTodos().then((lista) => {
+        if (activo && Array.isArray(lista) && lista.length > 0) setUsuarios(lista);
+      });
+    }
+    return () => {
+      activo = false;
+    };
+  }, []);
 
   const totalVentas = pedidos.reduce((suma, p) => suma + (p.totalPagar || 0), 0);
   const pedidosPendientes = pedidos.filter((p) => p.etapa < 4).length;

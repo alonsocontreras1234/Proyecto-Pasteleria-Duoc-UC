@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { buscarPedido, obtenerPedidoPorCodigo } from '../data/pedidosDB';
+import { buscarPedidoIntegrado, obtenerPedidoLocalPorCodigo } from '../services/PedidoService';
 
 // Convierte un pedido guardado en los datos que muestra esta vista
 const armarVista = (p) => ({
@@ -19,16 +19,16 @@ export const Seguimiento = ({ ultimoPedido }) => {
   const [codigo, setCodigo] = useState(ultimoPedido?.codigoSeguimiento || '');
   const [noEncontrado, setNoEncontrado] = useState(false);
 
-  // Si viene de la boleta, mostrar ese pedido (leído desde pedidosDB.js)
+  // Si viene de la boleta, mostrar ese pedido
   const [pedido, setPedido] = useState(() => {
-    const guardado = ultimoPedido ? obtenerPedidoPorCodigo(ultimoPedido.codigoSeguimiento) : null;
-    return guardado ? armarVista(guardado) : null;
+    const guardado = ultimoPedido ? obtenerPedidoLocalPorCodigo(ultimoPedido.codigoSeguimiento) : null;
+    return guardado ? armarVista(guardado) : (ultimoPedido ? armarVista(ultimoPedido) : null);
   });
 
-  // Buscar por código de seguimiento o RUT en los pedidos guardados
-  const handleBuscar = (e) => {
+  // Buscar por código de seguimiento, RUT o ID en backend/respaldo local
+  const handleBuscar = async (e) => {
     e.preventDefault();
-    const encontrado = buscarPedido(codigo);
+    const encontrado = await buscarPedidoIntegrado(codigo);
 
     if (encontrado) {
       setPedido(armarVista(encontrado));

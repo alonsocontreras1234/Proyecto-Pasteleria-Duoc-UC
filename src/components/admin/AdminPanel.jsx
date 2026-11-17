@@ -13,16 +13,25 @@ const SECCIONES = [
   { id: 'ordenes', nombre: '🧾 Órdenes y Boletas' }
 ];
 
-//Panel de Administración: menú lateral + la sección elegida
-//Solo lo ve un usuario con rol "admin" (ver App.jsx)
+// Panel de Administración: menú lateral + la sección elegida
+// ADMIN accede a todo; VENDEDOR solo ve Productos y Órdenes
 export const AdminPanel = ({ usuario }) => {
-  const [seccion, setSeccion] = useState('dashboard');
+  const esVendedor = usuario?.rol === 'vendedor';
+  const seccionesVisibles = esVendedor
+    ? SECCIONES.filter((s) => s.id === 'productos' || s.id === 'ordenes')
+    : SECCIONES;
+
+  const [seccion, setSeccion] = useState(esVendedor ? 'productos' : 'dashboard');
 
   return (
     <section className="main-container admin-panel">
       <div className="admin-header">
-        <h2>Panel de Administración</h2>
-        <p className="text-muted">Gestiona los productos, usuarios y pedidos de Pastelería Mil Sabores.</p>
+        <h2>{esVendedor ? 'Panel de Vendedor' : 'Panel de Administración'}</h2>
+        <p className="text-muted">
+          {esVendedor
+            ? 'Consulta y gestiona el catálogo de productos y las órdenes de Pastelería Mil Sabores.'
+            : 'Gestiona los productos, usuarios y pedidos de Pastelería Mil Sabores.'}
+        </p>
       </div>
 
       <Row className="g-4">
@@ -37,7 +46,7 @@ export const AdminPanel = ({ usuario }) => {
               </div>
 
               <Nav variant="pills" className="flex-column" activeKey={seccion} onSelect={(clave) => setSeccion(clave)}>
-                {SECCIONES.map((s) => (
+                {seccionesVisibles.map((s) => (
                   <Nav.Item key={s.id}>
                     <Nav.Link eventKey={s.id}>{s.nombre}</Nav.Link>
                   </Nav.Item>
@@ -49,10 +58,10 @@ export const AdminPanel = ({ usuario }) => {
 
         {/* CONTENIDO DE LA SECCIÓN */}
         <Col xs={12} lg={9}>
-          {seccion === 'dashboard' && <AdminDashboard onIrA={setSeccion} />}
+          {!esVendedor && seccion === 'dashboard' && <AdminDashboard onIrA={setSeccion} />}
           {seccion === 'productos' && <AdminProductos />}
-          {seccion === 'usuarios' && <AdminUsuarios usuarioActual={usuario} />}
-          {seccion === 'ordenes' && <AdminOrdenes />}
+          {!esVendedor && seccion === 'usuarios' && <AdminUsuarios usuarioActual={usuario} />}
+          {seccion === 'ordenes' && <AdminOrdenes esVendedor={esVendedor} />}
         </Col>
       </Row>
     </section>

@@ -17,8 +17,8 @@ export const ProductoModal = ({ producto, onClose, onAgregarAlCarrito }) => {
   };
 
   // Receta paso a paso de cada producto
-  // 1° la que trae el producto, 2° la original de data/productos.js (por si el producto
-  // se guardó antes de tener receta), 3° una receta general si no tiene ninguna
+  // 1.° la que trae el producto, 2.° la original de data/productos.js (por si el producto
+  // se guardó antes de tener receta), 3.° una receta general si no tiene ninguna
   const recetaOriginal = PRODUCTOS_INICIALES.find((p) => p.codigo === producto.codigo)?.receta;
   const recetaPasos = producto.receta?.length ? producto.receta : recetaOriginal || [
     `Preparar el bizcocho artesanal para la ${producto.nombre.toLowerCase()} y horneado en molde adecuado.`,

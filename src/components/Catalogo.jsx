@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { obtenerProductos } from '../data/productosDB';
+import React, { useState, useEffect } from 'react';
+import { obtenerProductos } from '../services/ProductoService'; // <-- 1. Apuntamos al nuevo servicio HTTP
 import { ProductoModal } from './ProductoModal';
 
 export const Catalogo = ({ onAgregarAlCarrito }) => {
@@ -7,8 +7,25 @@ export const Catalogo = ({ onAgregarAlCarrito }) => {
   const [busqueda, setBusqueda] = useState('');
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
-  // Productos leídos desde la base de datos simulada (productosDB.js)
-  const [productos] = useState(() => obtenerProductos());
+  // 2. Iniciamos los productos como arreglo vacío y agregamos estado de carga
+  const [productos, setProductos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+
+  // 3. Llamamos al backend de Spring Boot de forma asíncrona al montar el componente
+  useEffect(() => {
+    const cargarCatalogo = async () => {
+      try {
+        const datos = await obtenerProductos();
+        setProductos(datos);
+      } catch (error) {
+        console.error('Error al cargar los productos:', error);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    cargarCatalogo();
+  }, []);
 
   const categorias = [
     { id: 'todas', nombre: 'Todas' },
@@ -22,10 +39,12 @@ export const Catalogo = ({ onAgregarAlCarrito }) => {
     { id: 'especiales', nombre: 'Especiales' },
   ];
 
+  // Protección con (valor || '') para evitar errores si algún campo viene nulo desde la BD
   const productosFiltrados = productos.filter(p => {
     const coincideCat = categoria === 'todas' || p.categoria === categoria;
-    const coincideTexto = p.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
-                          p.codigo.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideTexto =
+      (p.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
+      (p.codigo || '').toLowerCase().includes(busqueda.toLowerCase());
     return coincideCat && coincideTexto;
   });
 
@@ -61,27 +80,38 @@ export const Catalogo = ({ onAgregarAlCarrito }) => {
         </div>
       </div>
 
-      {/* Grilla de Tarjetas del Catálogo */}
-      <div className="catalogo-grid">
-        {productosFiltrados.map(p => (
-          <article key={p.id} className="card-pastel-catalogo">
-            <div className="card-pastel-img">
-              <img src={p.imagen} alt={p.nombre} />
-            </div>
-            <div className="card-pastel-body-catalogo">
-              <span className="badge-codigo-card">{p.codigo}</span>
-              <h3 className="titulo-pastel-serif">{p.nombre}</h3>
-              <div className="precio-pastel-bold">${p.precio.toLocaleString('es-CL')}</div>
-              <button 
-                className="btn-ver-detalle-pedir" 
-                onClick={() => setProductoSeleccionado(p)}
-              >
-                Ver Detalle / Pedir
-              </button>
-            </div>
-          </article>
-        ))}
-      </div>
+      {/* 4. Renderizado condicional mientras responde el servidor Java */}
+      {cargando ? (
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <p className="subtitulo-nuestros-pasteles">Cargando catálogo desde el servidor...</p>
+        </div>
+      ) : productosFiltrados.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <p className="subtitulo-nuestros-pasteles">No se encontraron productos que coincidan con tu búsqueda.</p>
+        </div>
+      ) : (
+        /* Grilla de Tarjetas del Catálogo */
+        <div className="catalogo-grid">
+          {productosFiltrados.map(p => (
+            <article key={p.id} className="card-pastel-catalogo">
+              <div className="card-pastel-img">
+                <img src={p.imagen || p.imagenUrl} alt={p.nombre} />
+              </div>
+              <div className="card-pastel-body-catalogo">
+                <span className="badge-codigo-card">{p.codigo}</span>
+                <h3 className="titulo-pastel-serif">{p.nombre}</h3>
+                <div className="precio-pastel-bold">${Number(p.precio).toLocaleString('es-CL')}</div>
+                <button
+                  className="btn-ver-detalle-pedir"
+                  onClick={() => setProductoSeleccionado(p)}
+                >
+                  Ver Detalle / Pedir
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
 
       {/* Ventana Modal de Detalle */}
       {productoSeleccionado && (

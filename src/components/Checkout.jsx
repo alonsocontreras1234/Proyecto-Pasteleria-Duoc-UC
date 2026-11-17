@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { obtenerUsuarioPorEmail } from '../data/db';
+import { validarRut } from '../utils/validations';
 
 export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }) => {
   const [nombre, setNombre] = useState(usuario?.nombre || 'Magdalena Zúñiga');
   const [rut, setRut] = useState(usuario?.rut || '22.163.627-9');
+  const [errorRut, setErrorRut] = useState('');
   const [email, setEmail] = useState(usuario?.email || 'magd.zuniga@duocuc.cl');
   const [telefono, setTelefono] = useState(usuario?.telefono || '+56 9 2882 1422');
   const [direccion, setDireccion] = useState(usuario?.direccion || 'Av. Providencia 1234');
@@ -43,12 +45,18 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validarRut(rut)) {
+      setErrorRut('El RUN/RUT ingresado no es válido.');
+      return;
+    }
+    setErrorRut('');
 
     const codigoSeguimiento = `PMS-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    onFinalizarPedido({
+    await onFinalizarPedido({
       cliente: { nombre, rut, email, telefono, direccion },
       tipoEntrega,
       items: carrito,
@@ -95,9 +103,17 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
                 <input
                   type="text"
                   value={rut}
-                  onChange={(e) => setRut(e.target.value)}
+                  onChange={(e) => {
+                    setRut(e.target.value);
+                    if (errorRut) setErrorRut('');
+                  }}
                   required
                 />
+                {errorRut && (
+                  <p className="cupon-status-msg error" role="alert" style={{ marginTop: '6px' }}>
+                    {errorRut}
+                  </p>
+                )}
               </div>
             </div>
 

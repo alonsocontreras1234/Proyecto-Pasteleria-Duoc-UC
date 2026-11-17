@@ -9,13 +9,13 @@ describe('Pruebas de Componente - Catálogo y Modal', () => {
     expect(screen.getByText(/Nuestros Productos/i)).toBeInTheDocument();
   });
 
-  it('Debe abrir el modal de detalle al presionar "Ver Detalle / Pedir"', () => {
+  it('Debe abrir el modal de detalle al presionar "Ver Detalle / Pedir"', async () => {
     render(<Catalogo onAgregarAlCarrito={vi.fn()} />);
 
-    // Buscar todos los botones "Ver Detalle / Pedir" y presionar el primero
-    const botonesDetalle = screen.getAllByText(/Ver Detalle \/ Pedir/i);
+    // Esperar a que cargue el catálogo (backend o respaldo local) y presionar el primero
+    const botonesDetalle = await screen.findAllByText(/Ver Detalle \/ Pedir/i);
     expect(botonesDetalle.length).toBeGreaterThan(0);
-    
+
     fireEvent.click(botonesDetalle[0]);
 
     // Verificar que el modal desplegó el encabezado de la receta

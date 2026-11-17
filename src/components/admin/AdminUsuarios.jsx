@@ -1,18 +1,51 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Table, Button, Modal, Alert, Badge } from 'react-bootstrap';
-import { obtenerUsuarios, registrarUsuario, actualizarUsuario, eliminarUsuario } from '../../data/db';
+import { obtenerUsuarios as obtenerUsuariosLocales, registrarUsuario, actualizarUsuario, eliminarUsuario } from '../../data/db';
 import { obtenerPedidosPorEmail } from '../../data/pedidosDB';
+import usuarioService from '../../services/UsuarioService';
 import { UsuarioForm } from './UsuarioForm';
 
-//Administración de usuarios: listar, crear, editar, eliminar y ver su historial de compras
-//Usa el CRUD de data/db.js
+function normalizarUsuarioLista(u) {
+  return {
+    ...u,
+    rol: (u.rol || 'cliente').toLowerCase(),
+    nombre: [u.nombre, u.apellido].filter(Boolean).join(' ').trim() || u.nombre
+  };
+}
+
+// Administración de usuarios: conectado al backend con respaldo local
 export const AdminUsuarios = ({ usuarioActual }) => {
-  const [usuarios, setUsuarios] = useState(() => obtenerUsuarios());
+  const [usuarios, setUsuarios] = useState(() => obtenerUsuariosLocales());
   const [mensaje, setMensaje] = useState(null); // { tipo: 'success' | 'danger', texto }
 
   const [mostrarForm, setMostrarForm] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [usuarioHistorial, setUsuarioHistorial] = useState(null);
+
+  const cargarUsuarios = async () => {
+    if (localStorage.getItem('token_mil_sabores')) {
+      const remotos = await usuarioService.obtenerTodos();
+      if (Array.isArray(remotos) && remotos.length > 0) {
+        setUsuarios(remotos.map(normalizarUsuarioLista));
+        return;
+      }
+    }
+    setUsuarios(obtenerUsuariosLocales());
+  };
+
+  useEffect(() => {
+    let activo = true;
+    if (localStorage.getItem('token_mil_sabores')) {
+      usuarioService.obtenerTodos().then((remotos) => {
+        if (activo && Array.isArray(remotos) && remotos.length > 0) {
+          setUsuarios(remotos.map(normalizarUsuarioLista));
+        }
+      });
+    }
+    return () => {
+      activo = false;
+    };
+  }, []);
 
   const abrirNuevo = () => {
     setUsuarioEditando(null);
@@ -25,20 +58,40 @@ export const AdminUsuarios = ({ usuarioActual }) => {
   };
 
   // Crea o actualiza; si hay error lo devuelve para que el formulario lo muestre
-  const handleGuardar = (datos) => {
+  const handleGuardar = async (datos) => {
     let res;
+    const tieneToken = Boolean(localStorage.getItem('token_mil_sabores'));
 
     if (usuarioEditando) {
-      const cambios = { nombre: datos.nombre, telefono: datos.telefono, direccion: datos.direccion };
-      if (datos.password) cambios.password = datos.password;
-      res = actualizarUsuario(usuarioEditando.email, cambios);
+      if (tieneToken && usuarioEditando.id) {
+        const partes = (datos.nombre || '').trim().split(/\s+/);
+        const cambios = {
+          nombre: partes[0] || datos.nombre,
+          apellido: partes.slice(1).join(' ') || usuarioEditando.apellido || 'Usuario',
+          telefono: datos.telefono
+        };
+        if (datos.password) cambios.password = datos.password;
+        res = await usuarioService.actualizar(usuarioEditando.id, cambios);
+      } else {
+        const cambios = { nombre: datos.nombre, telefono: datos.telefono, direccion: datos.direccion };
+        if (datos.password) cambios.password = datos.password;
+        res = actualizarUsuario(usuarioEditando.email, cambios);
+      }
+    } else if (tieneToken) {
+      const partes = (datos.nombre || '').trim().split(/\s+/);
+      res = await usuarioService.registrar({
+        ...datos,
+        nombre: partes[0] || datos.nombre,
+        apellido: partes.slice(1).join(' ') || 'Usuario',
+        fechaNacimiento: datos.fechaNacimiento || '1995-01-01'
+      });
     } else {
       res = registrarUsuario(datos);
     }
 
     if (!res.ok) return res.error;
 
-    setUsuarios(obtenerUsuarios());
+    await cargarUsuarios();
     setMostrarForm(false);
     setMensaje({
       tipo: 'success',
@@ -47,7 +100,7 @@ export const AdminUsuarios = ({ usuarioActual }) => {
     return null;
   };
 
-  const handleEliminar = (usuario) => {
+  const handleEliminar = async (usuario) => {
     // No permitir que el administrador se elimine a sí mismo
     if (usuario.email === usuarioActual?.email) {
       setMensaje({ tipo: 'danger', texto: 'No puedes eliminar tu propia cuenta mientras estás conectado.' });
@@ -56,9 +109,13 @@ export const AdminUsuarios = ({ usuarioActual }) => {
 
     if (!window.confirm(`¿Eliminar al usuario "${usuario.nombre}"?`)) return;
 
-    const res = eliminarUsuario(usuario.email);
+    const tieneToken = Boolean(localStorage.getItem('token_mil_sabores'));
+    const res = tieneToken && usuario.id
+      ? await usuarioService.eliminar(usuario.id)
+      : eliminarUsuario(usuario.email);
+
     if (res.ok) {
-      setUsuarios(obtenerUsuarios());
+      await cargarUsuarios();
       setMensaje({ tipo: 'success', texto: `Usuario "${usuario.nombre}" eliminado.` });
     } else {
       setMensaje({ tipo: 'danger', texto: res.error });

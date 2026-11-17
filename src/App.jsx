@@ -11,7 +11,7 @@ import { Boleta } from './components/Boleta';
 import { Footer } from './components/Footer';
 import { CarritoModal } from './components/CarritoModal';
 import { AdminPanel } from './components/admin/AdminPanel';
-import { crearPedido } from './data/pedidosDB';
+import { crearPedidoCompleto } from './services/PedidoService';
 import { actualizarUsuario } from './data/db';
 
 export default function App() {
@@ -28,8 +28,10 @@ export default function App() {
     return guardado ? JSON.parse(guardado) : [];
   });
 
-  // Si al abrir la página ya hay un administrador conectado, parte en su panel
-  const [vistaActual, setVistaActual] = useState(() => (usuario?.rol === 'admin' ? 'admin' : 'inicio'));
+  // Si al abrir la página ya hay un administrador o vendedor conectado, parte en su panel
+  const [vistaActual, setVistaActual] = useState(() =>
+    usuario?.rol === 'admin' || usuario?.rol === 'vendedor' ? 'admin' : 'inicio'
+  );
   const [showCarritoModal, setShowCarritoModal] = useState(false);
   const [ultimoPedido, setUltimoPedido] = useState(null);
 
@@ -50,10 +52,10 @@ export default function App() {
   // =========================================================
   // MANEJADORES DE EVENTOS Y NAVEGACIÓN
   // =========================================================
-  // Al iniciar sesión: el administrador entra directo a su panel, el cliente al inicio
-  const handleLogin = (datos) => { 
-    setUsuario(datos); 
-    setVistaActual(datos?.rol === 'admin' ? 'admin' : 'inicio'); 
+  // Al iniciar sesión: el administrador o vendedor entra directo a su panel, el cliente al inicio
+  const handleLogin = (datos) => {
+    setUsuario(datos);
+    setVistaActual(datos?.rol === 'admin' || datos?.rol === 'vendedor' ? 'admin' : 'inicio');
   };
 
   const handleInvitado = () => { 
@@ -90,9 +92,9 @@ export default function App() {
     });
   };
 
-  const handleFinalizarPedido = (datosPedido) => {
-    // Guardar el pedido en la base de datos simulada (pedidosDB.js)
-    const res = crearPedido(datosPedido);
+  const handleFinalizarPedido = async (datosPedido) => {
+    // Guardar el pedido en el backend (con respaldo local si no hay conexión)
+    const res = await crearPedidoCompleto(datosPedido, usuario);
     if (!res.ok) {
       alert(res.error);
       return;
@@ -160,8 +162,8 @@ export default function App() {
           />
         )}
 
-        {/* Panel de Administración: solo para usuarios con rol "admin" */}
-        {vistaActual === 'admin' && usuario?.rol === 'admin' && (
+        {/* Panel de Administración: para usuarios con rol "admin" o "vendedor" */}
+        {vistaActual === 'admin' && (usuario?.rol === 'admin' || usuario?.rol === 'vendedor') && (
           <AdminPanel usuario={usuario} />
         )}
 

@@ -10,7 +10,7 @@ const calcularTotales = (subtotal, descuentoPorcentaje, costoDespacho) => {
 };
 
 describe('Pruebas Unitarias - Cálculos de Facturación', () => {
-  it('Debe calcular correctamente el Total, Neto e IVA (19%) para una compra estándar', () => {
+  it('Debe calcular correctamente el total, neto e IVA (19 %) para una compra estándar', () => {
     const subtotal = 40000;
     const descuento = 0;
     const despacho = 2500;
@@ -22,9 +22,9 @@ describe('Pruebas Unitarias - Cálculos de Facturación', () => {
     expect(resultado.iva).toBe(6786);
   });
 
-  it('Debe aplicar correctamente el cupón de descuento del 10%', () => {
+  it('Debe aplicar correctamente el cupón de descuento del 10 %', () => {
     const subtotal = 50000;
-    const descuento = 10; // 10%
+    const descuento = 10; // 10 %
     const despacho = 0; // Retiro en tienda
 
     const resultado = calcularTotales(subtotal, descuento, despacho);

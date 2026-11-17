@@ -1,33 +1,63 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Table, Button, Modal, Alert, Form } from 'react-bootstrap';
-import { obtenerPedidos, actualizarEstadoPedido, eliminarPedido, ETAPAS_PEDIDO } from '../../data/pedidosDB';
+import { obtenerPedidos as obtenerPedidosLocales } from '../../data/pedidosDB';
+import {
+  obtenerPedidos,
+  obtenerDetallesPorPedido,
+  actualizarEstadoPedido,
+  eliminarPedido,
+  ETAPAS_PEDIDO
+} from '../../services/PedidoService';
 
 // Formato de precio chileno: 45000 → "$45.000"
 const clp = (monto) => `$${Number(monto || 0).toLocaleString('es-CL')}`;
 
-//Administración de órdenes y boletas: ver el detalle, cambiar la etapa y eliminar
-//Usa el CRUD de data/pedidosDB.js (el cambio de etapa se ve en Seguimiento)
-export const AdminOrdenes = () => {
-  const [pedidos, setPedidos] = useState(() => obtenerPedidos());
+// Administración de órdenes y boletas: ver el detalle, cambiar la etapa y eliminar (solo ADMIN elimina)
+export const AdminOrdenes = ({ esVendedor = false }) => {
+  const [pedidos, setPedidos] = useState(() => obtenerPedidosLocales());
   const [mensaje, setMensaje] = useState(null); // { tipo: 'success' | 'danger', texto }
   const [pedidoDetalle, setPedidoDetalle] = useState(null);
 
-  const handleCambiarEtapa = (pedido, etapa) => {
-    const res = actualizarEstadoPedido(pedido.codigoSeguimiento, etapa);
+  const recargarPedidos = async () => {
+    const lista = await obtenerPedidos();
+    setPedidos(lista);
+  };
+
+  useEffect(() => {
+    let activo = true;
+    obtenerPedidos().then((lista) => {
+      if (activo) setPedidos(lista);
+    });
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  const handleVerBoleta = async (p) => {
+    if ((!p.items || p.items.length === 0) && p.id) {
+      const items = await obtenerDetallesPorPedido(p.id);
+      setPedidoDetalle({ ...p, items });
+      return;
+    }
+    setPedidoDetalle(p);
+  };
+
+  const handleCambiarEtapa = async (pedido, etapa) => {
+    const res = await actualizarEstadoPedido(pedido, etapa);
     if (res.ok) {
-      setPedidos(obtenerPedidos());
+      await recargarPedidos();
       setMensaje({ tipo: 'success', texto: `Pedido ${pedido.codigoSeguimiento} ahora está "${res.pedido.estadoNombre}".` });
     } else {
       setMensaje({ tipo: 'danger', texto: res.error });
     }
   };
 
-  const handleEliminar = (pedido) => {
+  const handleEliminar = async (pedido) => {
     if (!window.confirm(`¿Eliminar el pedido ${pedido.codigoSeguimiento}?`)) return;
 
-    const res = eliminarPedido(pedido.codigoSeguimiento);
+    const res = await eliminarPedido(pedido);
     if (res.ok) {
-      setPedidos(obtenerPedidos());
+      await recargarPedidos();
       setMensaje({ tipo: 'success', texto: `Pedido ${pedido.codigoSeguimiento} eliminado.` });
     } else {
       setMensaje({ tipo: 'danger', texto: res.error });
@@ -79,8 +109,10 @@ export const AdminOrdenes = () => {
                     </Form.Select>
                   </td>
                   <td className="text-end text-nowrap">
-                    <Button variant="secondary" size="sm" className="me-2" onClick={() => setPedidoDetalle(p)}>Ver boleta</Button>
-                    <Button variant="danger" size="sm" onClick={() => handleEliminar(p)}>Eliminar</Button>
+                    <Button variant="secondary" size="sm" className="me-2" onClick={() => handleVerBoleta(p)}>Ver boleta</Button>
+                    {!esVendedor && (
+                      <Button variant="danger" size="sm" onClick={() => handleEliminar(p)}>Eliminar</Button>
+                    )}
                   </td>
                 </tr>
               ))}
