@@ -5,6 +5,13 @@ import { Catalogo } from '../components/Catalogo';
 import { Checkout } from '../components/Checkout';
 import { actualizarUsuario, obtenerUsuarioPorEmail } from '../data/db';
 
+// El catálogo se lee desde el backend; en las pruebas se usa una API falsa en memoria
+vi.mock('../services/ProductoService', async (importOriginal) => {
+  const real = await importOriginal();
+  const { usar } = await import('./apiProductosFalsa');
+  return { ...real, ...usar(real) };
+});
+
 beforeEach(() => localStorage.clear());
 
 // Cuenta Duoc de prueba (viene en los usuarios demo de db.js)

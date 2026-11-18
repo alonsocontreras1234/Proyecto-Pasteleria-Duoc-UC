@@ -24,6 +24,9 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
   const tortasEnCarrito = carrito.filter((item) => item.nombre.toLowerCase().includes('torta'));
   const puedeCanjearTorta = !!usuario?.tortaGratisDuoc && !yaCanjeoTorta && tortasEnCarrito.length > 0;
   const [canjearTorta, setCanjearTorta] = useState(false);
+  const [metodoPago, setMetodoPago] = useState('EFECTIVO');
+  const [enviando, setEnviando] = useState(false);
+  const [errorEnvio, setErrorEnvio] = useState('');
 
   const subtotal = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
   const costoDespacho = tipoEntrega === 'despacho' ? 2500 : 0;
@@ -47,30 +50,39 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorEnvio('');
 
     if (!validarRut(rut)) {
       setErrorRut('El RUN/RUT ingresado no es válido.');
       return;
     }
     setErrorRut('');
+    setEnviando(true);
 
     const codigoSeguimiento = `PMS-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    await onFinalizarPedido({
-      cliente: { nombre, rut, email, telefono, direccion },
-      tipoEntrega,
-      items: carrito,
-      subtotal,
-      descuentoMonto,
-      descuentoTorta,
-      porcentajeDescuento: descuentoPorcentaje,
-      costoDespacho,
-      montoNeto,
-      iva,
-      totalPagar,
-      codigoSeguimiento,
-      tortaGratisDuoc: usuario?.tortaGratisDuoc || false
-    });
+    try {
+      await onFinalizarPedido({
+        cliente: { nombre, rut, email, telefono, direccion },
+        tipoEntrega,
+        metodoPago,
+        items: carrito,
+        subtotal,
+        descuentoMonto,
+        descuentoTorta,
+        porcentajeDescuento: descuentoPorcentaje,
+        costoDespacho,
+        montoNeto,
+        iva,
+        totalPagar,
+        codigoSeguimiento,
+        tortaGratisDuoc: usuario?.tortaGratisDuoc || false
+      });
+    } catch (err) {
+      setErrorEnvio(err?.message || 'No se pudo confirmar el pedido. Intenta nuevamente.');
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -166,6 +178,20 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
                 />
               </div>
             )}
+
+            <div className="form-group-exact" style={{ marginTop: '16px' }}>
+              <label>Método de Pago *</label>
+              <select
+                value={metodoPago}
+                onChange={(e) => setMetodoPago(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                required
+              >
+                <option value="EFECTIVO">Efectivo</option>
+                <option value="TARJETA">Tarjeta de crédito / débito</option>
+                <option value="TRANSFERENCIA">Transferencia bancaria</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -267,8 +293,14 @@ export const Checkout = ({ carrito, usuario, onFinalizarPedido, setVistaActual }
               <span className="total-monto-highlight">${totalPagar.toLocaleString('es-CL')}</span>
             </div>
 
-            <button type="submit" className="btn-confirmar-pedido">
-              Confirmar y Pagar Pedido
+            {errorEnvio && (
+              <p className="cupon-status-msg error" role="alert" style={{ marginTop: '12px', textAlign: 'center' }}>
+                {errorEnvio}
+              </p>
+            )}
+
+            <button type="submit" className="btn-confirmar-pedido" disabled={enviando}>
+              {enviando ? 'Registrando pedido...' : 'Confirmar y Pagar Pedido'}
             </button>
 
             <button 

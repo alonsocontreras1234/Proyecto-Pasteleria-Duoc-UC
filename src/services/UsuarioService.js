@@ -5,7 +5,15 @@ import axios from 'axios';
  * Conecta el frontend React con el backend Spring Boot en http://localhost:8080.
  * Conforme al estándar de la Guía 3.2.2 de DSY1104.
  */
-const BASE_URL = 'http://localhost:8080/api/v1/usuarios';
+const BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/usuarios`;
+
+// Quita la contraseña antes de guardar o devolver el usuario al frontend
+const sinPassword = (usuario) => {
+  if (!usuario || typeof usuario !== 'object') return usuario;
+  const copia = { ...usuario };
+  delete copia.password;
+  return copia;
+};
 
 // Interceptor para inyectar token JWT automáticamente
 axios.interceptors.request.use((config) => {
@@ -20,7 +28,7 @@ class UsuarioService {
   async registrar(usuario) {
     try {
       const response = await axios.post(`${BASE_URL}/registro`, usuario);
-      return { ok: true, usuario: response.data };
+      return { ok: true, usuario: sinPassword(response.data) };
     } catch (err) {
       return { ok: false, error: err.response?.data?.error || 'Error al registrar' };
     }
@@ -29,10 +37,17 @@ class UsuarioService {
   async login(email, password) {
     try {
       const response = await axios.post(`${BASE_URL}/login`, { email, password });
-      const { token, usuario } = response.data;
-      localStorage.setItem('token_mil_sabores', token);
+      const datos = response.data || {};
+      const usuario = datos.usuario || datos;
+
+      if (datos.token) {
+        localStorage.setItem('token_mil_sabores', datos.token);
+      }
       // Normalizar rol a minúsculas para compatibilidad con código existente
-      const usuarioNormalizado = { ...usuario, rol: usuario.rol.toLowerCase() };
+      const usuarioNormalizado = {
+        ...sinPassword(usuario),
+        rol: (usuario.rol || 'CLIENTE').toLowerCase()
+      };
       return { ok: true, usuario: usuarioNormalizado };
     } catch (err) {
       return { ok: false, error: err.response?.data?.error || 'Error en autenticación' };

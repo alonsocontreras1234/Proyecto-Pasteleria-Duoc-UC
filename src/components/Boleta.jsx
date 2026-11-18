@@ -11,6 +11,25 @@ export const Boleta = ({ pedido, setVistaActual }) => {
 
   return (
     <section className="main-container no-print-padding">
+      {pedido.avisoBackend && (
+        <div
+          className="no-print"
+          role="alert"
+          style={{
+            maxWidth: '900px',
+            margin: '0 auto 16px',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            border: '1px solid #f0c36d',
+            backgroundColor: '#fcf8e3',
+            color: '#7a5b00',
+            fontSize: '13px'
+          }}
+        >
+          <strong>Aviso:</strong> {pedido.avisoBackend}
+        </div>
+      )}
+
       {/* ENCABEZADO SUPERIOR Y BOTONES DE ACCIÓN */}
       <div className="boleta-top-header">
         <div>

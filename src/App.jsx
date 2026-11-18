@@ -11,7 +11,8 @@ import { Boleta } from './components/Boleta';
 import { Footer } from './components/Footer';
 import { CarritoModal } from './components/CarritoModal';
 import { AdminPanel } from './components/admin/AdminPanel';
-import { crearPedidoCompleto } from './services/PedidoService';
+import { crearPedido } from './data/pedidosDB';
+import { crearPedidoDesdeCarrito } from './services/PedidoService';
 import { actualizarUsuario } from './data/db';
 
 export default function App() {
@@ -93,16 +94,80 @@ export default function App() {
   };
 
   const handleFinalizarPedido = async (datosPedido) => {
-    // Guardar el pedido en el backend (con respaldo local si no hay conexión)
-    const res = await crearPedidoCompleto(datosPedido, usuario);
-    if (!res.ok) {
-      alert(res.error);
-      return;
+    let pedido = null;
+    let avisoBackend = '';
+    let registradoEnBackend = false;
+
+    // 1. Si hay una sesión real (no invitado), registrar el pedido en el backend.
+    if (usuario?.id && !usuario.esInvitado) {
+      try {
+        const remoto = await crearPedidoDesdeCarrito({
+          usuarioId: usuario.id,
+          carrito: datosPedido.items,
+          direccionDespacho:
+            datosPedido.tipoEntrega === 'retiro'
+              ? 'Retiro en tienda - Av. Providencia 1234'
+              : datosPedido.cliente.direccion,
+          metodoPago: datosPedido.metodoPago || 'EFECTIVO',
+          descuentoAplicado: datosPedido.porcentajeDescuento || 0,
+        });
+
+        registradoEnBackend = true;
+        // La boleta usa los montos del checkout, pero el folio y el código
+        // de seguimiento son los reales del backend.
+        pedido = {
+          ...datosPedido,
+          backendId: remoto.id,
+          folio: remoto.folio ?? remoto.id,
+          codigoSeguimiento: remoto.codigoSeguimiento,
+          fecha: remoto.fecha || new Date().toISOString(),
+          etapa: remoto.etapa,
+          estadoNombre: remoto.estadoNombre,
+        };
+      } catch (error) {
+        const detalle = error?.response?.data;
+        const status = error?.response?.status;
+        const mensajeServidor =
+          (typeof detalle === 'string' && detalle) ||
+          detalle?.error ||
+          detalle?.message;
+
+        if (status === 401) {
+          avisoBackend =
+            'Tu sesión expiró o no está autenticada en el servidor. Cierra sesión, vuelve a entrar y repite el pedido.';
+        } else if (status === 403) {
+          avisoBackend =
+            'El servidor rechazó el pedido porque la cuenta no tiene permiso. Inicia sesión con una cuenta válida.';
+        } else {
+          avisoBackend =
+            mensajeServidor ||
+            error?.message ||
+            'No se pudo registrar el pedido en el servidor.';
+        }
+      }
     }
-    setUltimoPedido(res.pedido);
+
+    // 2. Si no se pudo registrar en el backend, se guarda en este navegador
+    //    para mantener el respaldo offline sin duplicar en el historial.
+    if (!registradoEnBackend) {
+      const res = crearPedido(datosPedido);
+      if (!res.ok) throw new Error(res.error);
+      pedido = res.pedido;
+
+      if (!usuario?.id) {
+        avisoBackend =
+          'El pedido se guardó en este navegador. Tu sesión no tiene el ID del backend (puede ser una sesión antigua): cierra sesión, vuelve a entrar y repite el pedido para que quede registrado en la base de datos.';
+      } else if (avisoBackend) {
+        avisoBackend = `No se pudo registrar en el servidor: ${avisoBackend} El pedido se guardó en este navegador.`;
+      }
+    }
+
+    if (avisoBackend) pedido = { ...pedido, avisoBackend };
+
+    setUltimoPedido(pedido);
 
     // Si canjeó la torta gratis Duoc, se anota el año para que no la pida otra vez
-    if (res.pedido.descuentoTorta > 0 && usuario?.email) {
+    if (pedido.descuentoTorta > 0 && usuario?.email) {
       const actualizado = actualizarUsuario(usuario.email, { tortaCanjeadaAnio: new Date().getFullYear() });
       if (actualizado.ok) setUsuario(actualizado.usuario);
     }

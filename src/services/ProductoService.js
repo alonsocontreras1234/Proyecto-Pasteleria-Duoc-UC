@@ -1,54 +1,108 @@
-import axios from 'axios';
-import { 
-    obtenerProductos as obtenerLocales, 
-    crearProducto as crearLocal,
-    actualizarProducto as actualizarLocal,
-    eliminarProducto as eliminarLocal 
-} from '../data/productosDB';
+import http from './http';
+import { productos as PRODUCTOS_LOCALES } from '../data/productos';
+import { obtenerProductos as obtenerLocales } from '../data/productosDB';
 
-const API_URL = 'http://localhost:8080/api/v1/productos';
+/**
+ * Servicio de comunicación con la API de Productos del backend Spring Boot.
+ * Endpoints utilizados:
+ *   GET    /api/productos
+ *   POST   /api/productos       (ADMIN o VENDEDOR)
+ *   PUT    /api/productos/{id}  (ADMIN o VENDEDOR)
+ *   DELETE /api/productos/{id}  (ADMIN o VENDEDOR)
+ */
 
-// Función para obtener el token que ya guarda UsuarioService
-const getAuthHeaders = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem('token_mil_sabores')}` }
+const PRODUCTOS = '/api/productos';
+
+// Nombre visible de cada categoría. En la base de datos se guarda el id (ej: "cuadradas").
+export const CATEGORIAS = [
+  { id: 'cuadradas', nombre: 'Tortas Cuadradas' },
+  { id: 'circulares', nombre: 'Tortas Circulares' },
+  { id: 'postres', nombre: 'Postres' },
+  { id: 'sin-azucar', nombre: 'Sin Azúcar' },
+  { id: 'tradicional', nombre: 'Tradicional' },
+  { id: 'sin-gluten', nombre: 'Sin Gluten' },
+  { id: 'vegana', nombre: 'Veganas' },
+  { id: 'especiales', nombre: 'Especiales' },
+];
+
+const nombreCategoria = (id) => CATEGORIAS.find((c) => c.id === id)?.nombre || id || '';
+
+// Busca el mismo producto en data/productos.js para reutilizar su imagen y receta
+const productoLocal = (codigo) =>
+  PRODUCTOS_LOCALES.find(
+    (p) => p.codigo.toUpperCase() === String(codigo || '').toUpperCase()
+  );
+
+/**
+ * Convierte un producto del backend al formato que usan las pantallas.
+ * Soporta tanto "imagen" (@JsonProperty en Producto.java) como "imagenUrl".
+ */
+export const productoAVista = (producto) => {
+  const local = productoLocal(producto?.codigo);
+  return {
+    id: producto?.id,
+    codigo: producto?.codigo || '',
+    nombre: producto?.nombre || '',
+    descripcion: producto?.descripcion || '',
+    precio: Number(producto?.precio) || 0,
+    stock: Number(producto?.stock) || 0,
+    categoria: producto?.categoria || '',
+    categoriaNombre: nombreCategoria(producto?.categoria),
+    imagen: producto?.imagen || producto?.imagenUrl || local?.imagen || '',
+    receta: local?.receta,
+  };
+};
+
+/**
+ * Convierte los datos del formulario al formato que espera el backend.
+ */
+export const vistaAProducto = (datos) => ({
+  codigo: String(datos.codigo || '').trim().toUpperCase(),
+  nombre: String(datos.nombre || '').trim(),
+  descripcion: String(datos.descripcion || '').trim(),
+  precio: Number(datos.precio),
+  stock: Number(datos.stock),
+  categoria: datos.categoria,
+  imagenUrl: String(datos.imagen || '').trim(),
 });
 
+// Saca el mensaje de error que envía el backend (texto plano o { error })
+export const mensajeDeError = (error, porDefecto) => {
+  const data = error?.response?.data;
+  if (typeof data === 'string' && data.trim()) return data;
+  if (data?.error) return data.error;
+  if (error?.response?.status === 401 || error?.response?.status === 403) {
+    return 'No tienes permiso para esta acción. Inicia sesión con una cuenta autorizada.';
+  }
+  if (!error?.response) {
+    return 'No se pudo conectar con el backend. Verifica que Spring Boot esté corriendo.';
+  }
+  return porDefecto;
+};
+
+// ---------------------------------------------------------------------------
+// Llamadas a la API
+// ---------------------------------------------------------------------------
+
+export const listarProductos = async () =>
+  (await http.get(PRODUCTOS)).data.map(productoAVista);
+
+// Consulta el catálogo desde el backend con respaldo local si el servidor está apagado
 export const obtenerProductos = async () => {
-    try {
-        const res = await axios.get(API_URL);
-        return res.data;
-    } catch (error) {
-        console.warn("Usando datos locales (Backend apagado o en test)");
-        return obtenerLocales();
-    }
+  try {
+    return await listarProductos();
+  } catch {
+    console.warn('Usando datos locales (Backend apagado o en test)');
+    return obtenerLocales();
+  }
 };
 
-export const crearProducto = async (producto) => {
-    try {
-        const res = await axios.post(API_URL, producto, getAuthHeaders());
-        return res.data;
-    } catch (error) {
-        if (error.code === 'ERR_NETWORK') return crearLocal(producto);
-        throw error;
-    }
-};
+export const crearProducto = async (datos) =>
+  productoAVista((await http.post(PRODUCTOS, vistaAProducto(datos))).data);
 
-export const actualizarProducto = async (id, producto) => {
-    try {
-        const res = await axios.put(`${API_URL}/${id}`, producto, getAuthHeaders());
-        return res.data;
-    } catch (error) {
-        if (error.code === 'ERR_NETWORK') return actualizarLocal(id, producto);
-        throw error;
-    }
-};
+export const actualizarProducto = async (id, datos) =>
+  productoAVista((await http.put(`${PRODUCTOS}/${id}`, vistaAProducto(datos))).data);
 
 export const eliminarProducto = async (id) => {
-    try {
-        await axios.delete(`${API_URL}/${id}`, getAuthHeaders());
-        return id;
-    } catch (error) {
-        if (error.code === 'ERR_NETWORK') return eliminarLocal(id);
-        throw error;
-    }
+  await http.delete(`${PRODUCTOS}/${id}`);
 };

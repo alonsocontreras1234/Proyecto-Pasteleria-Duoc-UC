@@ -3,6 +3,13 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { Catalogo } from '../components/Catalogo';
 
+// El catálogo se lee desde el backend; en las pruebas se usa una API falsa en memoria
+vi.mock('../services/ProductoService', async (importOriginal) => {
+  const real = await importOriginal();
+  const { usar } = await import('./apiProductosFalsa');
+  return { ...real, ...usar(real) };
+});
+
 describe('Pruebas de Componente - Catálogo y Modal', () => {
   it('Debe renderizar el título de la sección de productos', () => {
     render(<Catalogo onAgregarAlCarrito={vi.fn()} />);

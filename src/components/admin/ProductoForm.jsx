@@ -12,16 +12,16 @@ export const ProductoForm = ({ productoInicial, categorias, onGuardar, onCancela
     nombre: productoInicial?.nombre || '',
     categoria: productoInicial?.categoria || categorias[0]?.id || '',
     precio: productoInicial?.precio ?? '',
-    stock: productoInicial?.stock ?? 10,
+    stock: productoInicial?.stock ?? '',
     descripcion: productoInicial?.descripcion || '',
     imagen: productoInicial?.imagen || productoInicial?.imagenUrl || ''
   });
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
 
-  // Actualiza un campo del formulario según su "name"
   const handleCambio = (e) => {
-    setDatos({ ...datos, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setDatos((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -32,16 +32,7 @@ export const ProductoForm = ({ productoInicial, categorias, onGuardar, onCancela
     try {
       // Nombre visible de la categoría elegida (ej: "Tortas Cuadradas")
       const categoriaNombre = categorias.find((c) => c.id === datos.categoria)?.nombre || datos.categoria;
-
-      // Convertimos precio y stock a números para que Spring Boot los mapee a Integer sin problemas
-      const payload = {
-        ...datos,
-        precio: datos.precio === '' ? null : Number(datos.precio),
-        stock: datos.stock === '' ? null : Number(datos.stock),
-        categoriaNombre
-      };
-
-      const mensajeError = await onGuardar(payload);
+      const mensajeError = await onGuardar({ ...datos, categoriaNombre });
       if (mensajeError) {
         setError(mensajeError);
       }
@@ -51,8 +42,8 @@ export const ProductoForm = ({ productoInicial, categorias, onGuardar, onCancela
   };
 
   return (
-    <Form onSubmit={handleSubmit} noValidate>
-      {error && <Alert variant="danger" role="alert">{error}</Alert>}
+    <Form onSubmit={handleSubmit}>
+      {error && <Alert variant="danger">{error}</Alert>}
 
       <Row className="g-3">
         <Col xs={12} md={4}>
@@ -67,7 +58,7 @@ export const ProductoForm = ({ productoInicial, categorias, onGuardar, onCancela
             <Form.Control name="nombre" value={datos.nombre} onChange={handleCambio} placeholder="Ej: Torta de Lúcuma" />
           </Form.Group>
         </Col>
-        <Col xs={12} md={4}>
+        <Col xs={12} md={6}>
           <Form.Group controlId="producto-categoria">
             <Form.Label>Categoría *</Form.Label>
             <Form.Select name="categoria" value={datos.categoria} onChange={handleCambio}>
@@ -77,28 +68,28 @@ export const ProductoForm = ({ productoInicial, categorias, onGuardar, onCancela
             </Form.Select>
           </Form.Group>
         </Col>
-        <Col xs={12} md={4}>
+        <Col xs={12} md={3}>
           <Form.Group controlId="producto-precio">
             <Form.Label>Precio (CLP) *</Form.Label>
             <Form.Control type="number" min="1" name="precio" value={datos.precio} onChange={handleCambio} placeholder="Ej: 45000" />
           </Form.Group>
         </Col>
-        <Col xs={12} md={4}>
+        <Col xs={12} md={3}>
           <Form.Group controlId="producto-stock">
             <Form.Label>Stock *</Form.Label>
-            <Form.Control type="number" min="0" name="stock" value={datos.stock} onChange={handleCambio} placeholder="Ej: 10" />
+            <Form.Control type="number" min="0" step="1" name="stock" value={datos.stock} onChange={handleCambio} placeholder="Ej: 10" />
+          </Form.Group>
+        </Col>
+        <Col xs={12}>
+          <Form.Group controlId="producto-imagen">
+            <Form.Label>Ruta de imagen</Form.Label>
+            <Form.Control name="imagen" value={datos.imagen} onChange={handleCambio} placeholder="/images/torta-cuadrada-chocolate.jpg" />
           </Form.Group>
         </Col>
         <Col xs={12}>
           <Form.Group controlId="producto-descripcion">
             <Form.Label>Descripción</Form.Label>
-            <Form.Control as="textarea" rows={2} name="descripcion" value={datos.descripcion} onChange={handleCambio} />
-          </Form.Group>
-        </Col>
-        <Col xs={12}>
-          <Form.Group controlId="producto-imagen">
-            <Form.Label>Imagen (ruta o enlace)</Form.Label>
-            <Form.Control name="imagen" value={datos.imagen} onChange={handleCambio} placeholder="Ej: /images/torta-lucuma.jpg" />
+            <Form.Control as="textarea" rows={3} name="descripcion" value={datos.descripcion} onChange={handleCambio} />
           </Form.Group>
         </Col>
       </Row>

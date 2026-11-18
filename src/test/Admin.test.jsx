@@ -4,29 +4,64 @@ import { AdminProductos } from '../components/admin/AdminProductos';
 import { AdminOrdenes } from '../components/admin/AdminOrdenes';
 import { AdminUsuarios } from '../components/admin/AdminUsuarios';
 import { AdminPanel } from '../components/admin/AdminPanel';
-import { obtenerProductoPorId, obtenerProductos } from '../data/productosDB';
-import { crearPedido, obtenerPedidos } from '../data/pedidosDB';
+import { apiFalsa } from './apiProductosFalsa';
+import { listarPedidosConDetalles, cambiarEstado } from '../services/PedidoService';
+
+// Productos: se usa una API falsa en memoria en vez del backend real
+vi.mock('../services/ProductoService', async (importOriginal) => {
+  const real = await importOriginal();
+  const { usar } = await import('./apiProductosFalsa');
+  return { ...real, ...usar(real) };
+});
+
+vi.mock('../services/PedidoService', () => ({
+  ESTADOS: {
+    PENDIENTE: { etiqueta: 'Recibido 📝', etapa: 1 },
+    EN_PREPARACION: { etiqueta: 'En Preparación 👨‍🍳', etapa: 2 },
+    LISTO_PARA_ENTREGA: { etiqueta: 'En Camino 🚚', etapa: 3 },
+    ENTREGADO: { etiqueta: 'Entregado 🎁', etapa: 4 },
+    CANCELADO: { etiqueta: 'Cancelado ❌', etapa: 4 },
+  },
+  listarPedidosConDetalles: vi.fn(),
+  cambiarEstado: vi.fn(),
+  eliminarPedido: vi.fn(),
+}));
 
 // Antes de cada prueba se limpia localStorage y se acepta cualquier confirm()
 beforeEach(() => {
   localStorage.clear();
+  vi.clearAllMocks();
+  apiFalsa.reiniciar();
   vi.spyOn(window, 'confirm').mockReturnValue(true);
 });
 
-// Busca la fila de la tabla que contiene un texto
+// Busca la fila de la tabla que contiene cierto texto
 const fila = (texto) => screen.getByText(texto).closest('tr');
 
 describe('Panel de Administración - Productos', () => {
-  it('Debe renderizar los 16 productos del catálogo', async () => {
+  // Espera a que lleguen los productos desde la API
+  const renderAdmin = async () => {
     render(<AdminProductos />);
+    await screen.findByText('Productos (16)');
+  };
 
-    expect(await screen.findByText('Productos (16)')).toBeInTheDocument();
+  // Llena los campos obligatorios del formulario
+  const llenar = ({ codigo, nombre, precio, stock }) => {
+    if (codigo !== undefined) fireEvent.change(screen.getByLabelText('Código *'), { target: { value: codigo } });
+    if (nombre !== undefined) fireEvent.change(screen.getByLabelText('Nombre *'), { target: { value: nombre } });
+    if (precio !== undefined) fireEvent.change(screen.getByLabelText('Precio (CLP) *'), { target: { value: precio } });
+    if (stock !== undefined) fireEvent.change(screen.getByLabelText('Stock *'), { target: { value: stock } });
+  };
+
+  it('Debe renderizar los 16 productos que entrega la API', async () => {
+    await renderAdmin();
+
+    expect(apiFalsa.listarProductos).toHaveBeenCalled();
     expect(screen.getAllByRole('button', { name: 'Editar' })).toHaveLength(16);
   });
 
   it('Debe filtrar la tabla al escribir en el buscador', async () => {
-    render(<AdminProductos />);
-    await screen.findByText('Productos (16)');
+    await renderAdmin();
 
     fireEvent.change(screen.getByPlaceholderText(/Buscar por nombre o código/i), { target: { value: 'brownie' } });
 
@@ -34,51 +69,57 @@ describe('Panel de Administración - Productos', () => {
     expect(screen.getByText('Brownie Sin Gluten')).toBeInTheDocument();
   });
 
-  it('Debe crear un producto nuevo desde el formulario', async () => {
-    render(<AdminProductos />);
-    await screen.findByText('Productos (16)');
+  it('Debe crear un producto nuevo en el backend desde el formulario', async () => {
+    await renderAdmin();
 
     fireEvent.click(screen.getByRole('button', { name: '+ Nuevo producto' }));
-    fireEvent.change(screen.getByLabelText('Código *'), { target: { value: 'TC003' } });
-    fireEvent.change(screen.getByLabelText('Nombre *'), { target: { value: 'Torta de Lúcuma' } });
-    fireEvent.change(screen.getByLabelText('Precio (CLP) *'), { target: { value: '47000' } });
+    llenar({ codigo: 'TC003', nombre: 'Torta de Lúcuma', precio: '47000', stock: '8' });
     fireEvent.click(screen.getByRole('button', { name: 'Crear producto' }));
 
     expect(await screen.findByText('Productos (17)')).toBeInTheDocument();
-    expect(obtenerProductos().some((p) => p.codigo === 'TC003')).toBe(true);
+    expect(apiFalsa.crearProducto).toHaveBeenCalledWith(
+      expect.objectContaining({ codigo: 'TC003', nombre: 'Torta de Lúcuma', precio: '47000', stock: '8' })
+    );
+    expect(apiFalsa.obtener().some((p) => p.codigo === 'TC003' && p.stock === 8)).toBe(true);
   });
 
   it('Debe mostrar un error si el código ya existe', async () => {
-    render(<AdminProductos />);
-    await screen.findByText('Productos (16)');
+    await renderAdmin();
 
     fireEvent.click(screen.getByRole('button', { name: '+ Nuevo producto' }));
-    fireEvent.change(screen.getByLabelText('Código *'), { target: { value: 'TC001' } });
-    fireEvent.change(screen.getByLabelText('Nombre *'), { target: { value: 'Repetida' } });
-    fireEvent.change(screen.getByLabelText('Precio (CLP) *'), { target: { value: '1000' } });
+    llenar({ codigo: 'TC001', nombre: 'Repetida', precio: '1000', stock: '5' });
     fireEvent.click(screen.getByRole('button', { name: 'Crear producto' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/Ya existe un producto con el código TC001/);
-    expect(obtenerProductos()).toHaveLength(16);
+    expect(apiFalsa.crearProducto).not.toHaveBeenCalled();
+  });
+
+  it('Debe pedir el stock antes de crear el producto', async () => {
+    await renderAdmin();
+
+    fireEvent.click(screen.getByRole('button', { name: '+ Nuevo producto' }));
+    llenar({ codigo: 'TC004', nombre: 'Sin stock', precio: '1000' });
+    fireEvent.click(screen.getByRole('button', { name: 'Crear producto' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/El stock debe ser un número entero/);
+    expect(apiFalsa.crearProducto).not.toHaveBeenCalled();
   });
 
   it('Debe editar el precio de un producto', async () => {
-    render(<AdminProductos />);
-    await screen.findByText('Torta Cuadrada de Chocolate');
+    await renderAdmin();
 
     fireEvent.click(within(fila('Torta Cuadrada de Chocolate')).getByRole('button', { name: 'Editar' }));
-    fireEvent.change(screen.getByLabelText('Precio (CLP) *'), { target: { value: '49990' } });
+    llenar({ precio: '49990' });
     fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
 
-    await waitFor(() => {
-      expect(obtenerProductoPorId(1).precio).toBe(49990);
-      expect(within(fila('Torta Cuadrada de Chocolate')).getByText('$49.990')).toBeInTheDocument();
-    });
+    await waitFor(() =>
+      expect(within(fila('Torta Cuadrada de Chocolate')).getByText('$49.990')).toBeInTheDocument()
+    );
+    expect(apiFalsa.actualizarProducto).toHaveBeenCalledWith(1, expect.objectContaining({ precio: '49990' }));
   });
 
   it('Debe eliminar un producto después de confirmar', async () => {
-    render(<AdminProductos />);
-    await screen.findByText('Pan Sin Gluten');
+    await renderAdmin();
 
     fireEvent.click(within(fila('Pan Sin Gluten')).getByRole('button', { name: 'Eliminar' }));
 
@@ -100,29 +141,58 @@ describe('Panel de Administración - Usuarios', () => {
 });
 
 describe('Panel de Administración - Órdenes', () => {
-  it('Debe cambiar la etapa de un pedido', async () => {
-    const { pedido } = crearPedido({
-      cliente: { nombre: 'Ana Pérez', rut: '12.345.678-5', email: 'ana@gmail.com' },
-      items: [{ nombre: 'Torta Cuadrada de Chocolate', precio: 45000, cantidad: 1 }],
-      totalPagar: 47500
-    });
+  it('Debe listar los pedidos del backend y cambiar su estado', async () => {
+    const pedidoMock = {
+      id: 1,
+      codigoSeguimiento: 'PED-0001',
+      folio: 1,
+      cliente: {
+        nombre: 'Ana Pérez',
+        rut: '12.345.678-5',
+        email: 'ana@gmail.com',
+        direccion: 'Av. Providencia 1234',
+      },
+      fecha: '2026-11-16T10:00:00',
+      estado: 'PENDIENTE',
+      estadoNombre: 'Recibido 📝',
+      etapa: 1,
+      totalPagar: 47500,
+      descuentoAplicado: 0,
+      direccionDespacho: 'Av. Providencia 1234',
+      items: [{ nombre: 'Torta Cuadrada de Chocolate', cantidad: 1, precio: 45000, subtotal: 45000 }],
+    };
+
+    listarPedidosConDetalles.mockResolvedValue([pedidoMock]);
+    cambiarEstado.mockResolvedValue({ ...pedidoMock, estado: 'LISTO_PARA_ENTREGA' });
 
     render(<AdminOrdenes />);
 
-    fireEvent.change(screen.getByLabelText(`Estado del pedido ${pedido.codigoSeguimiento}`), { target: { value: '3' } });
+    const select = await screen.findByLabelText('Estado del pedido PED-0001');
+    fireEvent.change(select, { target: { value: 'LISTO_PARA_ENTREGA' } });
 
+    expect(cambiarEstado).toHaveBeenCalledWith(1, 'LISTO_PARA_ENTREGA');
     expect(await screen.findByText(/ahora está "En Camino/)).toBeInTheDocument();
-    expect(obtenerPedidos()[0].etapa).toBe(3);
   });
 });
 
 describe('Panel de Vendedor - Restricción de acceso', () => {
   it('Solo muestra Productos y Órdenes sin Dashboard ni Usuarios ni botón Eliminar', async () => {
-    crearPedido({
-      cliente: { nombre: 'Luis Soto', rut: '19.876.543-0', email: 'luis@gmail.com' },
-      items: [{ nombre: 'Mousse de Chocolate', precio: 5000, cantidad: 1 }],
-      totalPagar: 5000
-    });
+    listarPedidosConDetalles.mockResolvedValue([
+      {
+        id: 2,
+        codigoSeguimiento: 'PED-0002',
+        folio: 2,
+        cliente: { nombre: 'Luis Soto', rut: '19.876.543-0', email: 'luis@gmail.com' },
+        fecha: '2026-11-16T12:00:00',
+        estado: 'PENDIENTE',
+        estadoNombre: 'Recibido 📝',
+        etapa: 1,
+        totalPagar: 5000,
+        descuentoAplicado: 0,
+        direccionDespacho: 'Retiro en tienda',
+        items: [{ nombre: 'Mousse de Chocolate', cantidad: 1, precio: 5000, subtotal: 5000 }],
+      },
+    ]);
 
     render(<AdminPanel usuario={{ nombre: 'Vendedor', email: 'vendedor@milsabores.cl', rol: 'vendedor' }} />);
 

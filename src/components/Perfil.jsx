@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import usuarioService from '../services/UsuarioService';
 import { actualizarUsuario } from '../data/db';
-import { obtenerPedidosPorEmail } from '../data/pedidosDB';
+import { obtenerPedidosPorEmail, eliminarPedido } from '../data/pedidosDB';
+import { listarPedidosDeUsuarioConDetalles, crearPedidoDesdeCarrito } from '../services/PedidoService';
 import { calcularBeneficios } from '../utils/validations';
 
 export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
@@ -26,6 +27,73 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
   const [editDireccion, setEditDireccion] = useState(usuario?.direccion || '');
   const [passActual, setPassActual] = useState('');
   const [passNueva, setPassNueva] = useState('');
+
+  // Pedidos del usuario obtenidos desde el backend Spring Boot
+  const [pedidosServidor, setPedidosServidor] = useState([]);
+
+  // Sincronización manual de pedidos guardados solo en el navegador
+  const [sincronizando, setSincronizando] = useState('');
+  const [avisoSync, setAvisoSync] = useState(null);
+
+  useEffect(() => {
+    let activo = true;
+
+    if (!usuario?.id || usuario.esInvitado) {
+      return undefined;
+    }
+
+    const cargarPedidos = async () => {
+      try {
+        const pedidos = await listarPedidosDeUsuarioConDetalles(usuario.id);
+        if (activo) setPedidosServidor(pedidos);
+      } catch {
+        // Si el backend no está disponible se muestran solo los pedidos locales.
+      }
+    };
+
+    cargarPedidos();
+    return () => {
+      activo = false;
+    };
+  }, [usuario?.id, usuario?.esInvitado]);
+
+  // Sube al backend un pedido que quedó guardado solo en este navegador.
+  const handleSincronizar = async (pedidoLocal) => {
+    if (!usuario?.id || sincronizando) return;
+
+    setSincronizando(pedidoLocal.codigoSeguimiento);
+    setAvisoSync(null);
+
+    try {
+      const remoto = await crearPedidoDesdeCarrito({
+        usuarioId: usuario.id,
+        carrito: pedidoLocal.items || [],
+        direccionDespacho: pedidoLocal.cliente?.direccion || 'Sin dirección registrada',
+        metodoPago: pedidoLocal.metodoPago || 'EFECTIVO',
+        descuentoAplicado: pedidoLocal.porcentajeDescuento || 0,
+      });
+
+      eliminarPedido(pedidoLocal.codigoSeguimiento);
+      const actualizados = await listarPedidosDeUsuarioConDetalles(usuario.id);
+      setPedidosServidor(actualizados);
+      setAvisoSync({
+        tipo: 'ok',
+        texto: `Pedido enviado al servidor como ${remoto.codigoSeguimiento}.`,
+      });
+    } catch (err) {
+      const detalle = err?.response?.data;
+      setAvisoSync({
+        tipo: 'error',
+        texto:
+          detalle?.error ||
+          detalle?.message ||
+          err?.message ||
+          'No se pudo enviar el pedido al servidor.',
+      });
+    } finally {
+      setSincronizando('');
+    }
+  };
 
   const enriquecerConBeneficios = async (usuarioBase, cuponOpcional = '') => {
     const local = calcularBeneficios({
@@ -157,17 +225,34 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
 
   // VISTA DE PERFIL AUTENTICADO (CUANDO TIENE UNA CUENTA REGISTRADA)
   if (usuario && !usuario.esInvitado) {
-    // Pedidos de este usuario, leídos desde pedidosDB.js
-    const misPedidos = obtenerPedidosPorEmail(usuario.email);
-    const pedidosEnCamino = misPedidos.filter(p => p.etapa < 4);
+    // Pedidos del backend + pedidos locales guardados en el navegador
+    const pedidosLocales = obtenerPedidosPorEmail(usuario.email);
+    const misPedidos = [...pedidosServidor, ...pedidosLocales];
+    const pedidosEnCamino = misPedidos.filter(p => p.etapa < 4 && p.estado !== 'CANCELADO');
 
     // Tarjeta de un pedido (se usa en "Pedidos en Camino" y en "Historial")
     const tarjetaPedido = (p) => (
       <div key={p.codigoSeguimiento} className="box-vacio-perfil" style={{ textAlign: 'left', marginBottom: '12px' }}>
         <strong>Boleta N.º {String(p.folio).padStart(6, '0')}</strong> · Código: <strong>{p.codigoSeguimiento}</strong>
         <div>Fecha: {new Date(p.fecha).toLocaleDateString('es-CL')} · Estado: {p.estadoNombre}</div>
-        <div>Productos: {p.items.map(it => `${it.cantidad}x ${it.nombre}`).join(', ')}</div>
+        <div>Productos: {p.items.length > 0 ? p.items.map(it => `${it.cantidad}x ${it.nombre}`).join(', ') : 'Sin detalle registrado'}</div>
         <div>Total pagado: <strong>${p.totalPagar.toLocaleString('es-CL')}</strong></div>
+        {!p.backend && (
+          <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '11px', backgroundColor: '#fcf8e3', border: '1px solid #f0c36d', color: '#7a5b00', padding: '2px 8px', borderRadius: '10px' }}>
+              Solo en este navegador
+            </span>
+            <button
+              type="button"
+              className="btn-rastrear-exact"
+              style={{ padding: '4px 12px', fontSize: '11px' }}
+              onClick={() => handleSincronizar(p)}
+              disabled={sincronizando === p.codigoSeguimiento}
+            >
+              {sincronizando === p.codigoSeguimiento ? 'Enviando...' : 'Enviar al servidor'}
+            </button>
+          </div>
+        )}
       </div>
     );
 
@@ -364,6 +449,21 @@ export const Perfil = ({ usuario, onLogin, onLogout, onInvitado }) => {
               <div>
                 <h3 className="subtitulo-seccion-serif">Historial de Compras</h3>
                 <p className="desc-seccion-text">Revisa las compras y boletas que has realizado previamente.</p>
+                {avisoSync && (
+                  <div
+                    style={{
+                      color: avisoSync.tipo === 'error' ? '#721c24' : '#155724',
+                      backgroundColor: avisoSync.tipo === 'error' ? '#f8d7da' : '#d4edda',
+                      padding: '10px',
+                      borderRadius: '4px',
+                      marginBottom: '14px',
+                      border: `1px solid ${avisoSync.tipo === 'error' ? '#f5c6cb' : '#c3e6cb'}`
+                    }}
+                  >
+                    {avisoSync.tipo === 'error' ? '⚠️ ' : '✅ '}
+                    {avisoSync.texto}
+                  </div>
+                )}
                 {misPedidos.length === 0 ? (
                   <div className="box-vacio-perfil">
                     Aún no registras compras pasadas en tu cuenta.

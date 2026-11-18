@@ -1,41 +1,62 @@
 import { useEffect, useState } from 'react';
-import { Row, Col, Card, Table, Button, Badge } from 'react-bootstrap';
+import { Row, Col, Card, Table, Button, Badge, Spinner, Alert } from 'react-bootstrap';
 import { obtenerProductos as obtenerProductosLocales } from '../../data/productosDB';
 import { obtenerUsuarios as obtenerUsuariosLocales } from '../../data/db';
-import { obtenerPedidos as obtenerPedidosLocales } from '../../data/pedidosDB';
 import { obtenerProductos } from '../../services/ProductoService';
 import usuarioService from '../../services/UsuarioService';
-import { obtenerPedidos } from '../../services/PedidoService';
+import { listarPedidos, ESTADOS } from '../../services/PedidoService';
 
 // Formato de precio chileno: 45000 → "$45.000"
 const clp = (monto) => `$${Number(monto || 0).toLocaleString('es-CL')}`;
 
-// Dashboard: resumen general de la tienda y los últimos pedidos
+const colorEstado = (estado) => {
+  if (estado === 'ENTREGADO') return 'success';
+  if (estado === 'CANCELADO') return 'danger';
+  return 'warning';
+};
+
+// Dashboard: resumen general de la tienda y los últimos pedidos desde el backend
 export const AdminDashboard = ({ onIrA }) => {
   const [productos, setProductos] = useState(() => obtenerProductosLocales());
   const [usuarios, setUsuarios] = useState(() => obtenerUsuariosLocales());
-  const [pedidos, setPedidos] = useState(() => obtenerPedidosLocales());
+  const [pedidos, setPedidos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [errorConexion, setErrorConexion] = useState('');
 
   useEffect(() => {
     let activo = true;
+
     obtenerProductos().then((lista) => {
       if (activo && Array.isArray(lista)) setProductos(lista);
     });
-    obtenerPedidos().then((lista) => {
-      if (activo && Array.isArray(lista)) setPedidos(lista);
-    });
+
     if (localStorage.getItem('token_mil_sabores')) {
       usuarioService.obtenerTodos().then((lista) => {
         if (activo && Array.isArray(lista) && lista.length > 0) setUsuarios(lista);
       });
     }
+
+    const cargarPedidos = async () => {
+      try {
+        const datos = await listarPedidos();
+        if (activo && Array.isArray(datos)) setPedidos(datos);
+      } catch {
+        if (activo) {
+          setErrorConexion('No se pudieron cargar los pedidos desde el backend.');
+        }
+      } finally {
+        if (activo) setCargando(false);
+      }
+    };
+
+    cargarPedidos();
     return () => {
       activo = false;
     };
   }, []);
 
-  const totalVentas = pedidos.reduce((suma, p) => suma + (p.totalPagar || 0), 0);
-  const pedidosPendientes = pedidos.filter((p) => p.etapa < 4).length;
+  const totalVentas = pedidos.reduce((suma, p) => suma + (Number(p.total ?? p.totalPagar) || 0), 0);
+  const pedidosPendientes = pedidos.filter((p) => p.estado !== 'ENTREGADO' && p.estado !== 'CANCELADO').length;
 
   // Tarjetas de resumen (cada una lleva a su sección)
   const tarjetas = [
@@ -69,8 +90,16 @@ export const AdminDashboard = ({ onIrA }) => {
       <Card>
         <Card.Body>
           <h4>Últimos pedidos</h4>
-          {pedidos.length === 0 ? (
-            <p className="text-muted mb-0">Todavía no hay pedidos registrados.</p>
+
+          {errorConexion && <Alert variant="warning">{errorConexion}</Alert>}
+
+          {cargando ? (
+            <div className="text-center py-3">
+              <Spinner animation="border" role="status" size="sm" className="me-2" />
+              Cargando pedidos...
+            </div>
+          ) : pedidos.length === 0 ? (
+            <p className="text-muted mb-0">Todavía no hay pedidos registrados en el backend.</p>
           ) : (
             <Table responsive hover className="mb-0 align-middle">
               <thead>
@@ -84,12 +113,16 @@ export const AdminDashboard = ({ onIrA }) => {
               </thead>
               <tbody>
                 {pedidos.slice(0, 5).map((p) => (
-                  <tr key={p.codigoSeguimiento}>
-                    <td>{String(p.folio).padStart(6, '0')}</td>
-                    <td>{p.cliente?.nombre}</td>
-                    <td>{new Date(p.fecha).toLocaleDateString('es-CL')}</td>
-                    <td className="text-end">{clp(p.totalPagar)}</td>
-                    <td><Badge bg={p.etapa === 4 ? 'success' : 'warning'} text={p.etapa === 4 ? undefined : 'dark'}>{p.estadoNombre}</Badge></td>
+                  <tr key={p.id}>
+                    <td>{String(p.id).padStart(6, '0')}</td>
+                    <td>{[p.usuario?.nombre, p.usuario?.apellido].filter(Boolean).join(' ') || 'Cliente'}</td>
+                    <td>{p.fechaPedido ? new Date(p.fechaPedido).toLocaleDateString('es-CL') : '—'}</td>
+                    <td className="text-end">{clp(p.total)}</td>
+                    <td>
+                      <Badge bg={colorEstado(p.estado)} text={colorEstado(p.estado) === 'warning' ? 'dark' : undefined}>
+                        {ESTADOS[p.estado]?.etiqueta || p.estado}
+                      </Badge>
+                    </td>
                   </tr>
                 ))}
               </tbody>
